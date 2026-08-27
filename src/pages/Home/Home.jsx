@@ -1,8 +1,14 @@
+import React from 'react'
+import Navbar from '../../components/Navbar/Navbar.jsx'
+import Hero from '../../components/Home/Hero.jsx'
 function Home() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold text-black">Home</h1>
+    <div className='bg-white min-h-screen '>
+      
+      <Navbar />
+      <Hero />
     </div>
+   
   )
 }
 
