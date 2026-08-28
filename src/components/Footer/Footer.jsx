@@ -1,3 +1,6 @@
+import { FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
+
+
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
@@ -23,9 +26,9 @@ const contactDetails = [
 
 // Swap "#" for the ministry's real social links once they have them
 const socialLinks = [
-  { label: "Facebook", href: "#", abbr: "f" },
-  { label: "Instagram", href: "#", abbr: "ig" },
-  { label: "YouTube", href: "#", abbr: "yt" },
+  { label: "Facebook", href: "#", icon: <FaFacebook />, title: 'facebook' },
+  { label: "Instagram", href: "#", icon: <FaInstagram /> , title: 'instagram' },
+  { label: "YouTube", href: "#", icon: <FaYoutube />, title: 'youtube' },
 ];
 
 export default function Footer() {
@@ -50,7 +53,7 @@ export default function Footer() {
                   aria-label={social.label}
                   className="w-9 h-9 rounded-full bg-stone-50/[0.08] flex items-center justify-center text-amber-500 text-xs font-semibold hover:bg-stone-50/[0.15] transition-colors"
                 >
-                  {social.abbr}
+                  {social.icon}
                 </a>
               ))}
             </div>
