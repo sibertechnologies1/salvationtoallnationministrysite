@@ -39,7 +39,7 @@ export default function Footer() {
           {/* Ministry name + tagline + socials */}
           <div className="w-full md:w-auto md:max-w-xs">
             <div className="font-serif text-xl text-stone-50 mb-4">
-              Salvation To All Nations
+              Salvation To All Nations Ministry
             </div>
             <p className="text-sm text-stone-400 leading-relaxed mb-5">
               A family gathered from every nation, walking together in
