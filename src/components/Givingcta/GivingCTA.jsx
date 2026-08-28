@@ -14,7 +14,7 @@ export default function GivingCTA() {
         <p className="text-green-950/85 leading-relaxed mb-9">
           Every gift helps us reach more nations, disciple more believers,
           and serve our community with the love of Christ. Thank you for
-          partnering with us, we really appreciate it.
+          partnering with us, we really appreciate your support.
         </p>
 
         <a
