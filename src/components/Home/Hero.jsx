@@ -85,9 +85,12 @@ export default function Hero() {
           </a>
           <a
             href="/contact"
-            className="border border-stone-50/35 text-stone-50 font-medium text-sm px-8 py-4 rounded transition-colors duration-200 hover:bg-stone-50/10"
+            className="border border-stone-50/35 text-stone-50 font-medium text-sm px-8 py-4 rounded transition-colors duration-200 hover:bg-stone-50/10 flex items-center gap-2"
           >
-            Plan your visit
+            Begin Your Journey
+              <span className="transition-transform duration-200 group-hover:translate-x-1">
+              →
+            </span>
           </a>
         </div>
       </div>
