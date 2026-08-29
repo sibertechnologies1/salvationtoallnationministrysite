@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useSermons } from "../../hooks/useSermons";
-import sermonsHeroImage from "../../assets/sermon_bible.jpg"; // adjust path to wherever you place the image
+import sermon_bible from "../../assets/sermon_bible.jpg"; // adjust path to wherever you place the image
 
 export default function Sermons() {
   const { sermons, isLoading, error } = useSermons(); // full list, no slicing
@@ -41,7 +41,7 @@ export default function Sermons() {
       {/* Page header banner */}
       <section
         className="relative pt-32 pb-16 px-6 text-center bg-cover bg-center overflow-hidden"
-        style={{ backgroundImage: `url(${sermonsHeroImage})`, backgroundPosition: "center 55%" }}
+        style={{ backgroundImage: `url(${sermon_bible})`, backgroundPosition: "center 55%" }}
       >
         {/* Dark overlay — keeps the heading readable over the bright glow in the photo */}
         <div
