@@ -15,6 +15,11 @@ export default {
           "0%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(-33.333%)" },
         },
+
+        fadeInUp: {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       fontFamily: {
         serif: ["Fraunces", "serif"],

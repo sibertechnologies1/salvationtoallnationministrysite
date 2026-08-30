@@ -2,10 +2,17 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useSermons } from "../../hooks/useSermons";
-import sermon_bible from "../../assets/sermon_bible.jpg"; // adjust path to wherever you place the image
+import sermonsHeroImage from "../../assets/sermon_bible.jpg"; // adjust path to wherever you place the image
 
 export default function Sermons() {
   const { sermons, isLoading, error } = useSermons(); // full list, no slicing
+
+  // Staggered entrance animation for the hero text — same pattern as Home's Hero
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    const timeout = setTimeout(() => setHasMounted(true), 100);
+    return () => clearTimeout(timeout);
+  }, []);
 
   const [selectedSermon, setSelectedSermon] = useState(null);
   const [contentLoading, setContentLoading] = useState(false);
@@ -39,10 +46,13 @@ export default function Sermons() {
       <Navbar />
 
       {/* Page header banner */}
-      <section
-        className="relative pt-32 pb-16 px-6 text-center bg-cover bg-center overflow-hidden"
-        style={{ backgroundImage: `url(${sermon_bible})`, backgroundPosition: "center 55%" }}
-      >
+      <section className="relative pt-32 pb-16 px-6 text-center overflow-hidden">
+        {/* Background photo with a slow Ken Burns zoom, same technique as Home's Hero */}
+        <div
+          className="absolute inset-0 bg-cover scale-105 animate-[kenburns_18s_ease-in-out_infinite_alternate]"
+          style={{ backgroundImage: `url(${sermonsHeroImage})`, backgroundPosition: "center 55%" }}
+        />
+
         {/* Dark overlay — keeps the heading readable over the bright glow in the photo */}
         <div
           className="absolute inset-0"
@@ -53,13 +63,25 @@ export default function Sermons() {
         />
 
         <div className="relative">
-          <p className="text-sm tracking-[0.2em] uppercase text-amber-500 font-semibold mb-4">
+          <p
+            className={`text-sm tracking-[0.2em] uppercase text-amber-500 font-semibold mb-4 transition-all duration-700 ${
+              hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
             Messages
           </p>
-          <h1 className="font-serif text-4xl md:text-5xl text-stone-50">
+          <h1
+            className={`font-serif text-4xl md:text-5xl text-stone-50 transition-all duration-700 delay-150 ${
+              hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
             All Sermons
           </h1>
-          <p className="text-stone-300 mt-4 max-w-xl mx-auto">
+          <p
+            className={`text-stone-300 mt-4 max-w-xl mx-auto transition-all duration-700 delay-300 ${
+              hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+            }`}
+          >
             Browse our full library of messages, videos, and audio teachings.
           </p>
         </div>
@@ -99,12 +121,13 @@ export default function Sermons() {
 
           {!isLoading && !error && sermons.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {sermons.map((sermon) => (
+              {sermons.map((sermon, index) => (
                 <button
                   key={sermon.id}
                   type="button"
                   onClick={() => openContent(sermon)}
-                  className="group bg-stone-50 border border-stone-200 rounded-lg overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 text-left w-full"
+                  style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
+                  className="group bg-stone-50 border border-stone-200 rounded-lg overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 text-left w-full opacity-0 animate-[fadeInUp_0.6s_ease-out_forwards]"
                 >
                   <div className="relative aspect-video overflow-hidden bg-stone-200">
                     {sermon.thumbnail ? (
