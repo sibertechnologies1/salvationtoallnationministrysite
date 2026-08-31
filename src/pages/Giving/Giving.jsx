@@ -95,7 +95,12 @@ export default function Giving() {
                   <h3 className="text-stone-50 font-serif text-2xl">
                     Mobile Money
                   </h3>
+                    <p className="text-stone-50 text-xl font-semibold tracking-wide">
+                  Name: Tiroug Boadzie Ebenezer
+                </p>
                 </div>
+              
+
               </div>
 
               {/* MTN */}
