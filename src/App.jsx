@@ -3,6 +3,7 @@ import About from './pages/About/About.jsx';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Sermons from './pages/Sermons/Sermons.jsx';
 import Events from './pages/Events/Events.jsx';
+import Giving from './pages/Giving/Giving.jsx';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/sermons" element={<Sermons />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/giving" element={<Giving />} />
         </Routes>
       </BrowserRouter>
     </div>
