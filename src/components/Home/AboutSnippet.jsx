@@ -6,6 +6,8 @@ export default function AboutSnippet() {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
+  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {

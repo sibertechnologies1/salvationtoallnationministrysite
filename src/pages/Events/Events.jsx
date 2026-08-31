@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useEvents } from "../../hooks/useEvents";
 import { EVENT_SHEETS } from "../../config/eventSheets";
-import eventsHeroImage from "../../assets/event_hero.jpg"; // adjust path to wherever you place the image
+import eventsHeroImage from "../../assets/event_hero.jpg"; 
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",

@@ -84,6 +84,16 @@ export default function Sermons() {
           >
             Browse our full library of messages, videos, and audio teachings.
           </p>
+
+
+          {/* Animated scroll cue */}
+          <div
+            className={`mt-10 text-amber-500 text-xl animate-bounce transition-opacity duration-700 delay-500 ${
+              hasMounted ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            ↓
+          </div>
         </div>
       </section>
 
