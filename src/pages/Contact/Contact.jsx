@@ -620,28 +620,18 @@ export default function Contact() {
                 </div>
               </div>
 
-              <a
-                href="https://www.google.com/maps/search/?api=1&query=Barekese%2C%20Ghana"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-8 bg-green-950 text-stone-50 px-6 py-3.5 rounded-xl font-semibold hover:bg-green-900 hover:-translate-y-0.5 transition-all duration-300"
+            <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31690.52219077371!2d-1.7139529999999998!3d6.852761200000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdba460a71cb585%3A0xe71e6202af929219!2sBarekese!5e0!3m2!1sen!2sgh!4v1788211370471!5m2!1sen!2sgh"
+                width="100%"
+                height="450"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="rounded-xl mt-8"
               >
-                Get Directions
-
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                  />
-                </svg>
-              </a>
+  
+</iframe>
             </div>
 
             {/* MAP */}
@@ -682,15 +672,13 @@ export default function Contact() {
                   Maps.
                 </p>
 
-                <a
-                  href="https://www.google.com/maps/search/?api=1&query=Barekese%2C%20Ghana"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <p
                   className="inline-flex items-center gap-2 mt-6 text-amber-500 font-semibold hover:text-amber-400 transition-colors"
                 >
-                  Open Google Maps
-                  <span>→</span>
-                </a>
+                  <span>←</span>
+                  That is the map at the left
+                
+                </p>
               </div>
             </div>
           </div>
