@@ -83,7 +83,7 @@ export default function ChatWidget() {
         <div className="fixed bottom-24 right-6 z-40 w-[calc(100vw-3rem)] max-w-sm h-[480px] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden border border-stone-200">
           <div className="bg-green-950 px-5 py-4">
             <p className="text-stone-50 font-serif text-lg">Ask Us Anything</p>
-            <p className="text-stone-400 text-xs mt-0.5">Usually replies in seconds</p>
+            <p className="text-stone-400 text-xs mt-0.5">I am here for you</p>
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-stone-50">
