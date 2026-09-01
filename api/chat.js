@@ -86,8 +86,8 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${API_KEY.trim()}`,
       },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile", // ✅ Recommended Groq model ID
+          body: JSON.stringify({
+        model: "llama3-8b-8192", // ✅ Active Groq model ID
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...recentMessages],
         temperature: 0.5,
         max_tokens: 300,
