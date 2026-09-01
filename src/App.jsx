@@ -5,6 +5,7 @@ import Sermons from './pages/Sermons/Sermons.jsx';
 import Events from './pages/Events/Events.jsx';
 import Giving from './pages/Giving/Giving.jsx';
 import Contact from './pages/Contact/Contact.jsx';
+import ChatWidget from './components/Chatwidget/Chatwidget.jsx';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/giving" element={<Giving />} />
           <Route path="/contact" element={<Contact />} />
         </Routes>
+       <ChatWidget />
       </BrowserRouter>
     </div>
   );

@@ -675,10 +675,10 @@ export default function Contact() {
                 <p
                   className="inline-flex items-center gap-2 mt-6 text-amber-500 font-semibold hover:text-amber-400 transition-colors"
                 >
-                  <span className=" lg:block none">←</span>
-                   <span className=" lg:none block">↑</span>
-                  That is the map at the left
-                
+                  <span className="hidden lg:block">←</span>
+                  <span className="block lg:hidden">↑</span>
+                 <h6 class="hidden lg:block"> That is the map at the Left</h6>
+                 <h6 class="lg:hidden block"> That is the map Above</h6>
                 </p>
               </div>
             </div>
