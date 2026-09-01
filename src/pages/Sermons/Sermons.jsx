@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useSermons } from "../../hooks/useSermons";
@@ -41,19 +41,33 @@ export default function Sermons() {
     return "Loading image...";
   };
 
+  // --- Search ---
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredSermons = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+    if (!query) return sermons;
+    return sermons.filter((sermon) =>
+      sermon.title.toLowerCase().includes(query)
+    );
+  }, [sermons, searchTerm]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+  };
+
+  const clearSearch = () => setSearchTerm("");
+
   return (
     <>
       <Navbar />
 
-      {/* Page header banner */}
       <section className="relative pt-32 pb-16 px-6 text-center overflow-hidden">
-        {/* Background photo with a slow Ken Burns zoom, same technique as Home's Hero */}
         <div
           className="absolute inset-0 bg-cover scale-105 animate-[kenburns_18s_ease-in-out_infinite_alternate]"
           style={{ backgroundImage: `url(${sermonsHeroImage})`, backgroundPosition: "center 55%" }}
         />
 
-        {/* Dark overlay — keeps the heading readable over the bright glow in the photo */}
         <div
           className="absolute inset-0"
           style={{
@@ -85,8 +99,6 @@ export default function Sermons() {
             Browse our full library of messages, videos, and audio teachings.
           </p>
 
-
-          {/* Animated scroll cue */}
           <div
             className={`mt-10 text-amber-500 text-xl animate-bounce transition-opacity duration-700 delay-500 ${
               hasMounted ? "opacity-100" : "opacity-0"
@@ -97,16 +109,63 @@ export default function Sermons() {
         </div>
       </section>
 
-      {/* Full sermon grid */}
       <section className="bg-white py-20 px-6">
         <div className="max-w-screen-xl mx-auto">
-          {isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-                <div
-                  key={item}
-                  className="bg-stone-100 rounded-lg overflow-hidden animate-pulse"
+          <form onSubmit={handleSearchSubmit} className="max-w-xl mx-auto mb-4">
+            <div className="relative flex items-center">
+              <svg
+                className="absolute left-4 w-5 h-5 text-stone-400 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="11" cy="11" r="7" strokeWidth="2" />
+                <path strokeLinecap="round" strokeWidth="2" d="M21 21l-4.35-4.35" />
+              </svg>
+
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search sermons by title..."
+                aria-label="Search sermons by title"
+                className="w-full rounded-full border border-stone-200 bg-stone-50 pl-12 pr-24 py-3.5 text-stone-700 placeholder:text-stone-400 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition"
+              />
+
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  aria-label="Clear search"
+                  className="absolute right-24 w-6 h-6 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-600 hover:bg-stone-200 transition-colors"
                 >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+
+              <button
+                type="submit"
+                className="absolute right-1.5 bg-green-950 text-stone-50 text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-green-900 transition-colors"
+              >
+                Search
+              </button>
+            </div>
+          </form>
+
+          {!isLoading && !error && searchTerm && (
+            <p className="text-center text-sm text-stone-500 mb-10">
+              {filteredSermons.length === 0
+                ? `No sermons found for "${searchTerm}"`
+                : `Showing ${filteredSermons.length} of ${sermons.length} sermons`}
+            </p>
+          )}
+
+          {isLoading && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+                <div key={item} className="bg-stone-100 rounded-lg overflow-hidden animate-pulse">
                   <div className="aspect-video bg-stone-200" />
                   <div className="p-5">
                     <div className="h-4 bg-stone-200 rounded mb-3" />
@@ -129,9 +188,9 @@ export default function Sermons() {
             </p>
           )}
 
-          {!isLoading && !error && sermons.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {sermons.map((sermon, index) => (
+          {!isLoading && !error && filteredSermons.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+              {filteredSermons.map((sermon, index) => (
                 <button
                   key={sermon.id}
                   type="button"
@@ -149,9 +208,7 @@ export default function Sermons() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-stone-400 text-sm">
-                          No preview available
-                        </span>
+                        <span className="text-stone-400 text-sm">No preview available</span>
                       </div>
                     )}
 
@@ -206,7 +263,6 @@ export default function Sermons() {
 
       <Footer />
 
-      {/* Content Modal — same pattern as Home's LatestSermon */}
       {selectedSermon && (
         <div
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 md:p-8"
