@@ -20,6 +20,7 @@ GUIDELINES & CORE FUNCTIONS:
 2. CHURCH INFORMATION (Strictly adhere to these details when asked about the ministry):
    - Church Name: Salvation To All Nations
    - Location: Barekese, Kumasi, Ghana
+   - District: Atwima Nwabiagya North District
    - Service Times: 
      * Sunday Worship: 9:00 AM
      * Wednesday Bible Study: 6:30 PM
