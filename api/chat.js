@@ -87,7 +87,7 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${API_KEY.trim()}`,
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant", // ✅ Updated to a currently supported model
+        model: "allam-2-7b", // ✅ Updated to a currently supported model
         messages: [{ role: "system", content: SYSTEM_PROMPT }, ...recentMessages],
         temperature: 0.5,
         max_tokens: 300,
