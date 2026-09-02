@@ -6,6 +6,10 @@
 // Your React app calls THIS endpoint (e.g. fetch("/api/sermons")) instead
 // of ever talking to Google directly.
 
+function baseName(fileName) {
+  return fileName.replace(/\.[^/.]+$/, "").trim().toLowerCase();
+}
+
 export default async function handler(req, res) {
   const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
   const FOLDER_ID = process.env.SERMONS_FOLDER_ID;
@@ -32,17 +36,40 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Reshape into exactly what the frontend needs, so React components
-    // don't have to know anything about Google Drive's response format
-    const sermons = data.files.map((file) => ({
-      id: file.id,
-      title: file.name.replace(/\.[^/.]+$/, ""), // strips file extension for a cleaner title
-      date: file.createdTime,
-      embedUrl: `https://drive.google.com/file/d/${file.id}/preview`,
-      thumbnail: file.thumbnailLink || null,
-      isVideo: file.mimeType?.startsWith("video/"),
-      isAudio: file.mimeType?.startsWith("audio/"),
-    }));
+    // Split the folder's contents into media files (what we actually show
+    // as sermons) and image files (used as custom thumbnails). This lets
+    // you upload "Sunday Service.mp4" alongside "Sunday Service.jpg" and
+    // have the image used as that sermon's thumbnail, since Drive's
+    // automatic thumbnail generation is unreliable (never works for audio,
+    // and can take time or fail for video).
+    const imageFiles = data.files.filter((f) => f.mimeType?.startsWith("image/"));
+    const mediaFiles = data.files.filter(
+      (f) => f.mimeType?.startsWith("video/") || f.mimeType?.startsWith("audio/")
+    );
+
+    const imageByBaseName = new Map();
+    imageFiles.forEach((img) => {
+      imageByBaseName.set(baseName(img.name), img);
+    });
+
+    const sermons = mediaFiles.map((file) => {
+      const matchingImage = imageByBaseName.get(baseName(file.name));
+
+      // Priority: your custom companion image > Drive's auto-thumbnail > none
+      const thumbnail = matchingImage
+        ? `https://lh3.googleusercontent.com/d/${matchingImage.id}`
+        : file.thumbnailLink || null;
+
+      return {
+        id: file.id,
+        title: file.name.replace(/\.[^/.]+$/, ""), // strips file extension for a cleaner title
+        date: file.createdTime,
+        embedUrl: `https://drive.google.com/file/d/${file.id}/preview`,
+        thumbnail,
+        isVideo: file.mimeType?.startsWith("video/"),
+        isAudio: file.mimeType?.startsWith("audio/"),
+      };
+    });
 
     // Cache for 5 minutes on Vercel's edge, so repeat visits are fast and
     // we don't hit the Drive API on every single page load
