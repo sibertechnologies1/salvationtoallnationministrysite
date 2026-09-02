@@ -735,7 +735,10 @@ export default async function handler(req, res) {
 
   try {
     // Models to try in order of preference
-const MODELS = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
+const MODELS = [
+  "gemini-3.7-flash",
+  "gemini-2.5-flash"
+];
 
 let response;
 let lastErrorDetails;
