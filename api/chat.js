@@ -3,40 +3,30 @@
 // Uses Google Gemini API for Bible, Christian, and general questions.
 // Authoritative church information is handled directly by server-side code.
 
-
 // ============================================================
 // AUTHORITATIVE CHURCH INFORMATION
 // ============================================================
 
 const CHURCH_INFO = {
   name: "Salvation To All Nations",
-
   location: "Barekese, Kumasi, Ghana",
-
   district: "Atwima Nwabiagya North District",
-
   services: {
     sunday: "Sunday Worship: 9:00 AM",
     wednesday: "Wednesday Bible Study: 6:30 PM",
     friday: "Friday Prayer Night: 7:00 PM",
   },
-
   mission:
     "A family gathered from every nation, walking together in faith, worship, and service to Christ.",
-
   sermons:
     "Check the '/sermons' page for recent video and audio sermon recordings.",
-
   events:
     "Check the '/events' page for upcoming church events.",
-
   giving:
     "Giving options include Mobile Money, bank transfer, in-person giving during service, or international giving. Check the '/giving' page for specific details.",
-
   contact:
     "Check the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.",
 };
-
 
 // ============================================================
 // GEMINI SYSTEM PROMPT
@@ -46,11 +36,9 @@ const SYSTEM_PROMPT = `
 You are the official church assistant for Salvation To All Nations, a Christian ministry based in Barekese, Kumasi, Ghana.
 
 YOUR ROLE:
-
 You are a warm, natural, respectful and helpful church assistant.
 
 You answer:
-
 - Bible questions
 - Bible verse questions
 - Bible chapter questions
@@ -75,18 +63,11 @@ You answer:
 You may also answer questions about Salvation To All Nations, but church-specific facts must follow the authoritative information provided below.
 
 IMPORTANT CHURCH FACT RULES:
-
 The following information is authoritative:
 
-Church Name:
-Salvation To All Nations
-
-Location:
-Barekese, Kumasi, Ghana
-
-District:
-Atwima Nwabiagya North District
-
+Church Name: Salvation To All Nations
+Location: Barekese, Kumasi, Ghana
+District: Atwima Nwabiagya North District
 Service Times:
 - Sunday Worship: 9:00 AM
 - Wednesday Bible Study: 6:30 PM
@@ -95,160 +76,36 @@ Service Times:
 Mission:
 A family gathered from every nation, walking together in faith, worship, and service to Christ.
 
-Sermons:
-Users should check the '/sermons' page for recent video and audio sermon recordings.
-
-Events:
-Users should check the '/events' page for upcoming church events.
-
-Giving:
-Options include Mobile Money, bank transfer, in-person giving during service, or international giving.
-Users should check the '/giving' page for specific details.
-
-Contact:
-Users should check the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.
+Sermons: Check '/sermons' page for recent video and audio sermon recordings.
+Events: Check '/events' page for upcoming church events.
+Giving: Options include Mobile Money, bank transfer, in-person giving, or international giving. Check '/giving' page.
+Contact: Check '/contact' page for online contact form, phone numbers, and email address.
 
 NEVER:
-
-- Change the church location.
-- Change the district name.
-- Invent an address.
-- Invent phone numbers.
-- Invent email addresses.
-- Invent service times.
-- Invent church leaders.
-- Invent church history.
-- Invent church programs.
-- Invent church events.
-- Invent ministries.
-- Invent giving details.
+- Change the church location or district.
+- Invent addresses, phone numbers, email addresses, service times, leaders, history, programs, events, or giving details.
 - Guess missing church information.
-- Mention information as fact when it is not provided.
 
-If specific church information is not provided, say that the available information does not specify it and direct the user to the appropriate page when possible.
+If specific church information is not provided, state that the available information does not specify it and direct the user to the appropriate site page.
 
 BIBLE AND CHRISTIAN QUESTIONS:
-
-You are NOT limited to a small list of Bible verses.
-
-Recognize Bible references naturally, including any valid:
-
-- Bible book
-- Chapter
-- Verse
-- Verse range
-- Passage
-- Psalm
-
-Examples include:
-
-John 3:16
-Psalm 23:1
-Psalm 23
-Matthew 5:1-12
-Romans 8:28
-Romans 12:1-2
-Genesis 1
-1 Corinthians 13:4-7
-Ephesians 2:8-9
-Revelation 21:4
-
-These are examples only.
-
-Do NOT treat the examples above as a restricted list.
-
-Understand natural variations such as:
-
-"What does John 3:16 say?"
-"Explain John 3:16."
-"Give me John chapter 3 verse 16."
-"What does Psalm 23:4 mean?"
-"Read Matthew 5:1-12."
-"What does the Bible say about forgiveness?"
-"How can I strengthen my faith?"
-"Why should Christians pray?"
-"What is salvation?"
-"Who is Jesus?"
-
-Answer genuine Bible and Christian questions naturally.
+Answer genuine Bible and Christian questions naturally. Recognize references across book, chapter, verse, and passages.
 
 BIBLE VERSE QUESTIONS:
-
-When a user asks about a specific Bible verse:
-
-- Give the reference.
-- Give the verse text when appropriate.
-- Give a brief explanation.
-- Keep the response concise unless the user asks for more detail.
+When asked about a verse, give reference, verse text when appropriate, and a brief explanation. Keep answers concise unless asked for details.
 
 FULL CHAPTER OR PSALM REQUESTS:
-
-If the user explicitly asks for a complete Bible chapter or complete Psalm:
-
-- Provide the complete requested passage when possible.
-- Do not replace an explicit full-chapter request with only a summary.
-- Prefer KJV when a complete quotation is required.
-- After the passage, provide a short explanation of the main message.
+When asked for a full chapter/psalm, provide the complete passage (prefer KJV) followed by a short explanation of the main message.
 
 NORMAL RESPONSE LENGTH:
-
-For normal questions, keep answers concise.
-
-Usually use 1–5 sentences.
-
-If the user asks for more explanation, provide more detail.
+Keep standard answers concise (1–5 sentences).
 
 GREETING AND SMALL TALK:
+Respond naturally and warmly without forcing an automatic church pitch.
 
-For messages such as:
-
-Hello
-Hi
-Good morning
-Good afternoon
-How are you?
-What's up?
-
-Respond naturally and warmly.
-
-Do not automatically give a church introduction.
-
-DO NOT USE FILLER:
-
-Never repeatedly say:
-
-"Feel free to ask..."
-"Don't hesitate..."
-"I'm here to help..."
-"Let's dive in..."
-"Based on the information provided..."
-"According to the information provided..."
-"What would you like to know today?"
-"If you have any questions..."
-"Please feel free..."
-
-Answer the user's actual question directly.
-
-NEVER DISCLOSE YOUR AI IDENTITY:
-
-Never say:
-
-"As an AI..."
-"As an AI language model..."
-"I am an AI..."
-"I am a chatbot..."
-"As a language model..."
-"According to my training..."
-
-Speak naturally as the official church assistant.
-
-IMPORTANT:
-
-Accuracy is more important than sounding complete.
-
-Never invent information.
+DO NOT USE FILLER / DISCLOSE AI IDENTITY:
+Answer questions directly. Never use artificial filler phrases ("feel free to ask", "let's dive in") and never disclose AI identity ("As an AI language model...").
 `;
-
 
 // ============================================================
 // NORMALIZE TEXT
@@ -262,7 +119,6 @@ function normalizeText(text) {
     .trim();
 }
 
-
 // ============================================================
 // KEYWORD HELPER
 // ============================================================
@@ -271,17 +127,12 @@ function containsAny(text, keywords) {
   return keywords.some((keyword) => text.includes(keyword));
 }
 
-
 // ============================================================
 // CHURCH INTENT DETECTION
 // ============================================================
 
 function detectChurchIntent(message) {
   const text = normalizeText(message);
-
-  // ----------------------------------------------------------
-  // LOCATION
-  // ----------------------------------------------------------
 
   if (
     containsAny(text, [
@@ -330,11 +181,6 @@ function detectChurchIntent(message) {
     return "location";
   }
 
-
-  // ----------------------------------------------------------
-  // SERVICE TIMES
-  // ----------------------------------------------------------
-
   if (
     containsAny(text, [
       "service time",
@@ -370,11 +216,6 @@ function detectChurchIntent(message) {
     return "services";
   }
 
-
-  // ----------------------------------------------------------
-  // MISSION
-  // ----------------------------------------------------------
-
   if (
     containsAny(text, [
       "church mission",
@@ -392,11 +233,6 @@ function detectChurchIntent(message) {
   ) {
     return "mission";
   }
-
-
-  // ----------------------------------------------------------
-  // SERMONS
-  // ----------------------------------------------------------
 
   if (
     containsAny(text, [
@@ -426,11 +262,6 @@ function detectChurchIntent(message) {
     return "sermons";
   }
 
-
-  // ----------------------------------------------------------
-  // EVENTS
-  // ----------------------------------------------------------
-
   if (
     containsAny(text, [
       "church event",
@@ -452,11 +283,6 @@ function detectChurchIntent(message) {
   ) {
     return "events";
   }
-
-
-  // ----------------------------------------------------------
-  // GIVING
-  // ----------------------------------------------------------
 
   if (
     containsAny(text, [
@@ -483,11 +309,6 @@ function detectChurchIntent(message) {
   ) {
     return "giving";
   }
-
-
-  // ----------------------------------------------------------
-  // CONTACT
-  // ----------------------------------------------------------
 
   if (
     containsAny(text, [
@@ -518,10 +339,8 @@ function detectChurchIntent(message) {
     return "contact";
   }
 
-
   return null;
 }
-
 
 // ============================================================
 // EXACT CHURCH RESPONSES
@@ -555,7 +374,6 @@ function getChurchResponse(intent) {
   }
 }
 
-
 // ============================================================
 // CONVERT FRONTEND MESSAGES TO GEMINI FORMAT
 // ============================================================
@@ -572,7 +390,6 @@ function convertMessagesToGemini(messages) {
     .slice(-10)
     .map((message) => ({
       role: message.role === "assistant" ? "model" : "user",
-
       parts: [
         {
           text: message.content.trim(),
@@ -581,95 +398,50 @@ function convertMessagesToGemini(messages) {
     }));
 }
 
-
 // ============================================================
 // HANDLER
 // ============================================================
 
 export default async function handler(req, res) {
-  // ----------------------------------------------------------
-  // 1. CORS
-  // ----------------------------------------------------------
-
+  // CORS Headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
-
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
   );
-
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
   );
 
-
-  // ----------------------------------------------------------
-  // OPTIONS
-  // ----------------------------------------------------------
-
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-
-  // ----------------------------------------------------------
-  // POST ONLY
-  // ----------------------------------------------------------
-
   if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Method not allowed",
-    });
+    return res.status(405).json({ error: "Method not allowed" });
   }
-
-
-  // ----------------------------------------------------------
-  // GEMINI API KEY
-  // ----------------------------------------------------------
 
   const API_KEY = process.env.GEMINI_API_KEY;
-
   if (!API_KEY) {
     console.error("Missing GEMINI_API_KEY environment variable.");
-
-    return res.status(500).json({
-      error: "Server is missing GEMINI_API_KEY.",
-    });
+    return res.status(500).json({ error: "Server is missing GEMINI_API_KEY." });
   }
 
-
-  // ----------------------------------------------------------
-  // PARSE BODY
-  // ----------------------------------------------------------
-
   let body = req.body;
-
   if (typeof body === "string") {
     try {
       body = JSON.parse(body);
     } catch {
-      return res.status(400).json({
-        error: "Invalid JSON body.",
-      });
+      return res.status(400).json({ error: "Invalid JSON body." });
     }
   }
 
-
   const { messages } = body || {};
-
-
   if (!Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({
-      error: "Missing or invalid messages array.",
-    });
+    return res.status(400).json({ error: "Missing or invalid messages array." });
   }
-
-
-  // ----------------------------------------------------------
-  // FIND LAST USER MESSAGE
-  // ----------------------------------------------------------
 
   const lastUserMessage = [...messages]
     .reverse()
@@ -680,173 +452,92 @@ export default async function handler(req, res) {
         typeof message.content === "string"
     );
 
-
   if (!lastUserMessage) {
-    return res.status(400).json({
-      error: "No valid user message found.",
-    });
+    return res.status(400).json({ error: "No valid user message found." });
   }
-
 
   const userText = lastUserMessage.content.trim();
-
-
   if (!userText) {
-    return res.status(400).json({
-      error: "User message cannot be empty.",
-    });
+    return res.status(400).json({ error: "User message cannot be empty." });
   }
 
-
-  // ----------------------------------------------------------
-  // HANDLE CHURCH INFORMATION DIRECTLY
-  // ----------------------------------------------------------
-
+  // Handle local intent matching first
   const churchIntent = detectChurchIntent(userText);
-
   if (churchIntent) {
     const churchResponse = getChurchResponse(churchIntent);
-
     if (churchResponse) {
-      return res.status(200).json({
-        reply: churchResponse,
-      });
+      return res.status(200).json({ reply: churchResponse });
     }
   }
-
-
-  // ----------------------------------------------------------
-  // CONVERT CHAT HISTORY
-  // ----------------------------------------------------------
 
   const geminiContents = convertMessagesToGemini(messages);
-
-
   if (geminiContents.length === 0) {
-    return res.status(400).json({
-      error: "No valid conversation messages found.",
-    });
+    return res.status(400).json({ error: "No valid conversation messages found." });
   }
 
+  // Gemini Execution with Fallbacks and Timeout Safeguards
+  const MODELS = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+  let finalReply = null;
+  let lastErrorDetails = null;
 
-  // ----------------------------------------------------------
-  // GEMINI API REQUEST
-  // ----------------------------------------------------------
+  for (const model of MODELS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7500); // 7.5s ceiling per attempt
 
-  try {
-    // Models to try in order of preference
-const MODELS = [
-  "gemini-3.7-flash",
-  "gemini-2.5-flash"
-];
-
-let response;
-let lastErrorDetails;
-
-for (const model of MODELS) {
-  try {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": API_KEY.trim(),
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }],
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": API_KEY.trim(),
           },
-          contents: geminiContents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1200,
-            candidateCount: 1,
-          },
-        }),
+          signal: controller.signal,
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: SYSTEM_PROMPT }],
+            },
+            contents: geminiContents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1200,
+              candidateCount: 1,
+            },
+          }),
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const data = await response.json();
+        const extractedText = data?.candidates?.[0]?.content?.parts
+          ?.map((part) => part.text || "")
+          .join("")
+          .trim();
+
+        if (extractedText) {
+          finalReply = extractedText;
+          break; // Stop iteration once output is generated
+        }
+      } else {
+        lastErrorDetails = await response.text();
+        console.warn(`Model ${model} returned error status ${response.status}.`);
       }
-    );
-
-    if (response.ok) {
-      break; // Success! Exit the loop.
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.error(`Fetch exception for model ${model}:`, err.message);
+      lastErrorDetails = err.message;
     }
-
-    lastErrorDetails = await response.text();
-    console.warn(`Model ${model} failed with status ${response.status}. Trying next fallback...`);
-  } catch (err) {
-    console.error(`Fetch error with model ${model}:`, err);
   }
-}
 
-if (!response || !response.ok) {
+  if (finalReply) {
+    return res.status(200).json({ reply: finalReply });
+  }
+
   return res.status(503).json({
-    error: "Gemini API request failed across all model fallbacks.",
+    error: "Gemini API request failed across all active models.",
     details: lastErrorDetails,
   });
-}
-
-
-    // --------------------------------------------------------
-    // GEMINI ERROR
-    // --------------------------------------------------------
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-
-      console.error("Gemini API error:", errorBody);
-
-      return res.status(response.status).json({
-        error: "Gemini API request failed.",
-        details: errorBody,
-      });
-    }
-
-
-    // --------------------------------------------------------
-    // GEMINI RESPONSE
-    // --------------------------------------------------------
-
-    const data = await response.json();
-
-
-    const reply =
-      data?.candidates?.[0]?.content?.parts
-        ?.map((part) => part.text || "")
-        .join("")
-        .trim();
-
-
-    // --------------------------------------------------------
-    // EMPTY RESPONSE
-    // --------------------------------------------------------
-
-    if (!reply) {
-      console.error("Gemini returned no usable response:", data);
-
-      return res.status(500).json({
-        error: "Gemini returned an empty response.",
-      });
-    }
-
-
-    // --------------------------------------------------------
-    // RETURN RESPONSE
-    // --------------------------------------------------------
-
-    return res.status(200).json({
-      reply,
-    });
-
-
-  } catch (error) {
-    console.error("Unexpected Gemini server error:", error);
-
-    return res.status(500).json({
-      error: "Internal server error.",
-      details:
-        process.env.NODE_ENV === "development"
-          ? error.message
-          : undefined,
-    });
-  }
 }
