@@ -39,11 +39,11 @@ export default function Contact() {
           Accept: "application/json",
         },
         body: JSON.stringify({
-          access_key: "93b8f36f-c72b-4877-968a-fa51efca540c", // Replace with your free key from web3forms.com
+          access_key: "93b8f36f-c72b-4877-968a-fa51efca540c", 
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
-          subject: formData.subject || "General Enquiry",
+          inquiry_type: formData.subject || "General Enquiry",
           message: formData.message,
           from_name: "Salvation to All Nations Site",
         }),
