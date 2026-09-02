@@ -476,7 +476,7 @@ export default async function handler(req, res) {
   }
 
   // Gemini Execution with Fallbacks and Timeout Safeguards
-  const MODELS = ["gemini-1.5-flash", "gemini-1.5-pro"];
+  const MODELS = ["gemini-2.5-flash", "gemini-1.5-flash"];
   let finalReply = null;
   let lastErrorDetails = null;
 
