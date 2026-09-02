@@ -1,37 +1,103 @@
+import { useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import contact from "../../assets/contact.jpg";
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState({
+    submitting: false,
+    success: false,
+    error: false,
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus({ submitting: true, success: false, error: false, message: "" });
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: "93b8f36f-c72b-4877-968a-fa51efca540c", // Replace with your free key from web3forms.com
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject || "General Enquiry",
+          message: formData.message,
+          from_name: "Salvation to All Nations Site",
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setStatus({
+          submitting: false,
+          success: true,
+          error: false,
+          message: "Thank you! Your message has been sent successfully.",
+        });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        throw new Error(result.message || "Failed to send message.");
+      }
+    } catch (err) {
+      setStatus({
+        submitting: false,
+        success: false,
+        error: true,
+        message: err.message || "Something went wrong. Please try again.",
+      });
+    }
+  };
+
   return (
     <>
       <Navbar />
 
-      {/* =====================================================
-          HERO SECTION
-      ====================================================== */}
+      {/* HERO SECTION */}
       <section
         className="relative min-h-[520px] flex items-center pt-28 pb-20 px-6 bg-cover bg-center overflow-hidden"
         style={{ backgroundImage: `url(${contact})` }}
       >
-        {/* Dark overlay */}
         <div className="absolute inset-0 bg-green-950/80" />
-
-        {/* Subtle gradient */}
         <div className="absolute inset-0 bg-gradient-to-r from-green-950/90 via-green-950/70 to-green-950/50" />
-
-        {/* Decorative elements */}
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
 
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-4 mb-6">
             <span className="w-10 h-px bg-amber-500" />
-
             <p className="text-xs md:text-sm tracking-[0.25em] uppercase text-amber-500 font-semibold">
               Get In Touch
             </p>
-
             <span className="w-10 h-px bg-amber-500" />
           </div>
 
@@ -70,9 +136,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* =====================================================
-          CONTACT INFORMATION
-      ====================================================== */}
+      {/* CONTACT INFORMATION */}
       <section className="bg-stone-50 py-20 md:py-24 px-6">
         <div className="max-w-screen-xl mx-auto">
           <div className="max-w-3xl mx-auto text-center mb-14">
@@ -143,18 +207,7 @@ export default function Contact() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M22 16.92v3a2 2 0 01-2.18 2
-                    19.79 19.79 0 01-8.63-3.07
-                    19.5 19.5 0 01-6-6
-                    19.79 19.79 0 01-3.07-8.67
-                    A2 2 0 014.11 2h3
-                    a2 2 0 012 1.72
-                    12.84 12.84 0 00.7 2.81
-                    2 2 0 01-.45 2.11L8.09 9.91
-                    a16 16 0 006 6l1.27-1.27
-                    a2 2 0 012.11-.45
-                    12.84 12.84 0 002.81.7
-                    A2 2 0 0122 16.92z"
+                    d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67 A2 2 0 014.11 2h3 a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91 a16 16 0 006 6l1.27-1.27 a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 A2 2 0 0122 16.92z"
                   />
                 </svg>
               </div>
@@ -245,7 +298,6 @@ export default function Contact() {
                   <span className="text-stone-500">
                     Sunday Worship
                   </span>
-
                   <span className="text-green-950 font-semibold whitespace-nowrap">
                     9:00 AM
                   </span>
@@ -255,7 +307,6 @@ export default function Contact() {
                   <span className="text-stone-500">
                     Wednesday Bible Study
                   </span>
-
                   <span className="text-green-950 font-semibold whitespace-nowrap">
                     6:30 PM
                   </span>
@@ -265,7 +316,6 @@ export default function Contact() {
                   <span className="text-stone-500">
                     Friday Prayer Night
                   </span>
-
                   <span className="text-green-950 font-semibold whitespace-nowrap">
                     7:00 PM
                   </span>
@@ -276,9 +326,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* =====================================================
-          CONTACT FORM
-      ====================================================== */}
+      {/* CONTACT FORM */}
       <section
         id="contact-form"
         className="bg-white py-20 md:py-24 px-6"
@@ -289,7 +337,6 @@ export default function Contact() {
             <div>
               <div className="flex items-center gap-4 mb-5">
                 <span className="w-10 h-px bg-amber-500" />
-
                 <p className="text-xs md:text-sm tracking-[0.2em] uppercase text-amber-600 font-semibold">
                   Send a Message
                 </p>
@@ -330,7 +377,6 @@ export default function Contact() {
                     <h3 className="font-semibold text-green-950">
                       We Listen
                     </h3>
-
                     <p className="text-sm text-stone-500 mt-1">
                       Your questions and concerns matter to us.
                     </p>
@@ -358,7 +404,6 @@ export default function Contact() {
                     <h3 className="font-semibold text-green-950">
                       We Pray
                     </h3>
-
                     <p className="text-sm text-stone-500 mt-1">
                       We are committed to standing with you in prayer.
                     </p>
@@ -369,7 +414,19 @@ export default function Contact() {
 
             {/* FORM */}
             <div className="bg-stone-50 rounded-3xl p-7 md:p-10 border border-stone-200 shadow-lg">
-              <form className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {status.success && (
+                  <div className="p-4 rounded-xl bg-green-100 border border-green-300 text-green-900 text-sm font-medium">
+                    {status.message}
+                  </div>
+                )}
+
+                {status.error && (
+                  <div className="p-4 rounded-xl bg-red-100 border border-red-300 text-red-900 text-sm font-medium">
+                    {status.message}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   {/* NAME */}
                   <div>
@@ -383,6 +440,9 @@ export default function Contact() {
                     <input
                       id="name"
                       type="text"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder="Your full name"
                       className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-stone-700 placeholder:text-stone-400 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition"
                     />
@@ -400,6 +460,9 @@ export default function Contact() {
                     <input
                       id="email"
                       type="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder="Your email address"
                       className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-stone-700 placeholder:text-stone-400 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition"
                     />
@@ -418,6 +481,8 @@ export default function Contact() {
                   <input
                     id="phone"
                     type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
                     placeholder="Your phone number"
                     className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-stone-700 placeholder:text-stone-400 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition"
                   />
@@ -434,32 +499,18 @@ export default function Contact() {
 
                   <select
                     id="subject"
-                    defaultValue=""
+                    value={formData.subject}
+                    onChange={handleChange}
                     className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-stone-700 outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition"
                   >
                     <option value="" disabled>
                       Select an option
                     </option>
-
-                    <option value="general">
-                      General Enquiry
-                    </option>
-
-                    <option value="prayer">
-                      Prayer Request
-                    </option>
-
-                    <option value="ministry">
-                      Ministry Enquiry
-                    </option>
-
-                    <option value="event">
-                      Event Enquiry
-                    </option>
-
-                    <option value="other">
-                      Other
-                    </option>
+                    <option value="General Enquiry">General Enquiry</option>
+                    <option value="Prayer Request">Prayer Request</option>
+                    <option value="Ministry Enquiry">Ministry Enquiry</option>
+                    <option value="Event Enquiry">Event Enquiry</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
@@ -475,6 +526,9 @@ export default function Contact() {
                   <textarea
                     id="message"
                     rows="6"
+                    required
+                    value={formData.message}
+                    onChange={handleChange}
                     placeholder="Tell us how we can help..."
                     className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3.5 text-stone-700 placeholder:text-stone-400 outline-none resize-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition"
                   />
@@ -483,9 +537,10 @@ export default function Contact() {
                 {/* BUTTON */}
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 bg-green-950 text-stone-50 py-4 px-6 rounded-xl font-semibold hover:bg-green-900 hover:-translate-y-0.5 shadow-md hover:shadow-lg transition-all duration-300"
+                  disabled={status.submitting}
+                  className="w-full flex items-center justify-center gap-2 bg-green-950 text-stone-50 py-4 px-6 rounded-xl font-semibold hover:bg-green-900 hover:-translate-y-0.5 shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Send Message
+                  {status.submitting ? "Sending..." : "Send Message"}
 
                   <svg
                     className="w-5 h-5"
@@ -507,9 +562,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* =====================================================
-          PRAYER SECTION
-      ====================================================== */}
+      {/* PRAYER SECTION */}
       <section className="relative bg-green-950 py-20 md:py-24 px-6 overflow-hidden">
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
@@ -536,7 +589,6 @@ export default function Contact() {
             className="inline-flex items-center justify-center gap-2 mt-8 bg-amber-500 text-green-950 px-7 py-3.5 rounded-xl font-semibold hover:bg-amber-400 hover:-translate-y-1 shadow-lg transition-all duration-300"
           >
             Submit a Prayer Request
-
             <svg
               className="w-5 h-5"
               fill="none"
@@ -556,9 +608,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* =====================================================
-          LOCATION
-      ====================================================== */}
+      {/* LOCATION */}
       <section className="bg-stone-50 py-20 md:py-24 px-6">
         <div className="max-w-screen-xl mx-auto">
           <div className="max-w-3xl mx-auto text-center mb-14">
@@ -578,7 +628,6 @@ export default function Contact() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* ADDRESS */}
             <div className="bg-white rounded-3xl p-8 md:p-10 border border-stone-200 shadow-sm">
               <p className="text-amber-600 text-xs uppercase tracking-[0.2em] font-semibold">
                 Our Address
@@ -620,7 +669,7 @@ export default function Contact() {
                 </div>
               </div>
 
-            <iframe
+              <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31690.52219077371!2d-1.7139529999999998!3d6.852761200000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdba460a71cb585%3A0xe71e6202af929219!2sBarekese!5e0!3m2!1sen!2sgh!4v1788211370471!5m2!1sen!2sgh"
                 width="100%"
                 height="450"
@@ -629,12 +678,9 @@ export default function Contact() {
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"
                 className="rounded-xl mt-8"
-              >
-  
-</iframe>
+              />
             </div>
 
-            {/* MAP */}
             <div className="bg-green-950 rounded-3xl min-h-[320px] flex items-center justify-center overflow-hidden relative">
               <div className="absolute inset-0 opacity-10">
                 <div className="w-full h-full bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] [background-size:24px_24px]" />
@@ -672,13 +718,11 @@ export default function Contact() {
                   Maps.
                 </p>
 
-                <p
-                  className="inline-flex items-center gap-2 mt-6 text-amber-500 font-semibold hover:text-amber-400 transition-colors"
-                >
+                <p className="inline-flex items-center gap-2 mt-6 text-amber-500 font-semibold hover:text-amber-400 transition-colors">
                   <span className="hidden lg:block">←</span>
                   <span className="block lg:hidden">↑</span>
-                 <h6 class="hidden lg:block"> That is the map at the Left</h6>
-                 <h6 class="lg:hidden block"> That is the map Above</h6>
+                  <span className="hidden lg:block"> That is the map at the Left</span>
+                  <span className="lg:hidden block"> That is the map Above</span>
                 </p>
               </div>
             </div>
@@ -686,9 +730,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* =====================================================
-          SOCIAL MEDIA
-      ====================================================== */}
+      {/* SOCIAL MEDIA */}
       <section className="bg-white py-20 md:py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs md:text-sm tracking-[0.25em] uppercase text-amber-600 font-semibold mb-4">
@@ -706,7 +748,6 @@ export default function Contact() {
           </p>
 
           <div className="flex justify-center items-center gap-4 mt-9">
-            {/* FACEBOOK */}
             <a
               href="#"
               aria-label="Facebook"
@@ -721,7 +762,6 @@ export default function Contact() {
               </svg>
             </a>
 
-            {/* INSTAGRAM */}
             <a
               href="#"
               aria-label="Instagram"
@@ -742,7 +782,6 @@ export default function Contact() {
                   stroke="currentColor"
                   strokeWidth="2"
                 />
-
                 <circle
                   cx="12"
                   cy="12"
@@ -750,7 +789,6 @@ export default function Contact() {
                   stroke="currentColor"
                   strokeWidth="2"
                 />
-
                 <circle
                   cx="17.5"
                   cy="6.5"
@@ -760,7 +798,6 @@ export default function Contact() {
               </svg>
             </a>
 
-            {/* YOUTUBE */}
             <a
               href="#"
               aria-label="YouTube"
@@ -778,9 +815,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* =====================================================
-          CLOSING SCRIPTURE
-      ====================================================== */}
+      {/* CLOSING SCRIPTURE */}
       <section className="bg-green-950 py-20 md:py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <div className="w-12 h-px bg-amber-500 mx-auto mb-8" />
