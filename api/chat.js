@@ -734,34 +734,53 @@ export default async function handler(req, res) {
   // ----------------------------------------------------------
 
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent",
+    // Models to try in order of preference
+const MODELS = ["gemini-3.7-flash", "gemini-2.5-flash", "gemini-1.5-flash"];
+
+let response;
+let lastErrorDetails;
+
+for (const model of MODELS) {
+  try {
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
-
         headers: {
           "Content-Type": "application/json",
-
           "x-goog-api-key": API_KEY.trim(),
         },
-
-       body: JSON.stringify({
-  systemInstruction: {
-    parts: [
-      {
-        text: SYSTEM_PROMPT,
-      },
-    ],
-  },
-  contents: geminiContents,
-  generationConfig: {
-    temperature: 0.5, 
-    maxOutputTokens: 1200,
-    candidateCount: 1,
-  },
-}),
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: SYSTEM_PROMPT }],
+          },
+          contents: geminiContents,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1200,
+            candidateCount: 1,
+          },
+        }),
       }
     );
+
+    if (response.ok) {
+      break; // Success! Exit the loop.
+    }
+
+    lastErrorDetails = await response.text();
+    console.warn(`Model ${model} failed with status ${response.status}. Trying next fallback...`);
+  } catch (err) {
+    console.error(`Fetch error with model ${model}:`, err);
+  }
+}
+
+if (!response || !response.ok) {
+  return res.status(503).json({
+    error: "Gemini API request failed across all model fallbacks.",
+    details: lastErrorDetails,
+  });
+}
 
 
     // --------------------------------------------------------
