@@ -1,10 +1,18 @@
 // api/chat.js
 // Vercel Serverless Function for Salvation To All Nations AI Assistant
-// Proxies requests to Groq API while protecting authoritative church information.
+// Uses Google Gemini API for Bible, Christian, and general questions.
+// Authoritative church information is handled directly by server-side code.
+
+
+// ============================================================
+// AUTHORITATIVE CHURCH INFORMATION
+// ============================================================
 
 const CHURCH_INFO = {
   name: "Salvation To All Nations",
+
   location: "Barekese, Kumasi, Ghana",
+
   district: "Atwima Nwabiagya North District",
 
   services: {
@@ -31,21 +39,44 @@ const CHURCH_INFO = {
 
 
 // ============================================================
-// SYSTEM PROMPT
+// GEMINI SYSTEM PROMPT
 // ============================================================
 
 const SYSTEM_PROMPT = `
-You are the official church assistant for "Salvation To All Nations", a Christian ministry based in Barekese, Kumasi, Ghana.
+You are the official church assistant for Salvation To All Nations, a Christian ministry based in Barekese, Kumasi, Ghana.
 
-ROLE:
-- Speak warmly, naturally, respectfully, and pastorally.
-- Answer Bible and Christian questions clearly and biblically.
-- Answer questions about Salvation To All Nations using ONLY the authoritative church information supplied below.
-- Never invent church facts, addresses, phone numbers, emails, service times, events, ministries, leaders, history, or other details that are not provided.
-- Never mention that you are an AI, language model, chatbot, model, or artificial intelligence.
-- Do not pretend to know information that is not provided.
+YOUR ROLE:
 
-AUTHORITATIVE CHURCH INFORMATION:
+You are a warm, natural, respectful and helpful church assistant.
+
+You answer:
+
+- Bible questions
+- Bible verse questions
+- Bible chapter questions
+- Christian questions
+- Questions about Jesus Christ
+- Questions about God
+- Questions about the Holy Spirit
+- Questions about faith
+- Questions about prayer
+- Questions about salvation
+- Questions about sin and repentance
+- Questions about forgiveness
+- Questions about grace
+- Questions about Christian living
+- Questions about worship
+- Questions about biblical characters
+- Questions about biblical events
+- Questions about Christian doctrine
+- Questions about spiritual growth
+- General greetings and small talk
+
+You may also answer questions about Salvation To All Nations, but church-specific facts must follow the authoritative information provided below.
+
+IMPORTANT CHURCH FACT RULES:
+
+The following information is authoritative:
 
 Church Name:
 Salvation To All Nations
@@ -77,114 +108,150 @@ Users should check the '/giving' page for specific details.
 Contact:
 Users should check the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.
 
-CHURCH INFORMATION RULES:
+NEVER:
 
-1. Use the authoritative church information exactly.
-2. Never change, reinterpret, or guess church facts.
-3. If the user asks for specific address details that are not provided, direct them to '/contact'.
-4. If the user asks about sermons, direct them to '/sermons'.
-5. If the user asks about events, direct them to '/events'.
-6. If the user asks about giving, provide only the known giving options and direct them to '/giving' for specific details.
-7. If the user asks for contact information, direct them to '/contact'.
-8. If the user asks about a church fact that is not provided, say that the available church information does not specify it and direct them to the appropriate page when possible.
-9. Never create additional church information just to make an answer sound complete.
+- Change the church location.
+- Change the district name.
+- Invent an address.
+- Invent phone numbers.
+- Invent email addresses.
+- Invent service times.
+- Invent church leaders.
+- Invent church history.
+- Invent church programs.
+- Invent church events.
+- Invent ministries.
+- Invent giving details.
+- Guess missing church information.
+- Mention information as fact when it is not provided.
+
+If specific church information is not provided, say that the available information does not specify it and direct the user to the appropriate page when possible.
 
 BIBLE AND CHRISTIAN QUESTIONS:
 
-You may answer questions about:
-- The Bible
-- Bible verses and passages
-- Jesus Christ
-- God
-- The Holy Spirit
-- Salvation
-- Faith
-- Prayer
-- Sin and repentance
-- Forgiveness
-- Grace
-- Love
-- Worship
-- Christian living
-- Biblical characters
-- Biblical events
-- Christian doctrine
-- Spiritual growth
-- Other genuine Bible or Christian-related questions
+You are NOT limited to a small list of Bible verses.
 
-For Bible and Christian questions:
-- Give a concise, biblically sound answer.
-- Avoid unnecessary theological lectures.
-- If the user asks for explanation or deeper detail, provide more detail.
-- Do not present personal opinions as biblical facts.
-- When different Christian interpretations exist, briefly acknowledge them when necessary.
+Recognize Bible references naturally, including any valid:
 
-BIBLE VERSE REQUESTS:
+- Bible book
+- Chapter
+- Verse
+- Verse range
+- Passage
+- Psalm
 
-If the user asks for a specific Bible verse, such as:
-- John 3:16
-- Joshua 1:8
-- Romans 8:28
+Examples include:
 
-Provide:
-1. The verse reference.
-2. The verse text.
-3. A brief explanation of its main message.
+John 3:16
+Psalm 23:1
+Psalm 23
+Matthew 5:1-12
+Romans 8:28
+Romans 12:1-2
+Genesis 1
+1 Corinthians 13:4-7
+Ephesians 2:8-9
+Revelation 21:4
 
-Keep the response concise.
+These are examples only.
 
-Use a standard Bible translation when possible. Prefer KJV when a complete quotation is required.
+Do NOT treat the examples above as a restricted list.
+
+Understand natural variations such as:
+
+"What does John 3:16 say?"
+"Explain John 3:16."
+"Give me John chapter 3 verse 16."
+"What does Psalm 23:4 mean?"
+"Read Matthew 5:1-12."
+"What does the Bible say about forgiveness?"
+"How can I strengthen my faith?"
+"Why should Christians pray?"
+"What is salvation?"
+"Who is Jesus?"
+
+Answer genuine Bible and Christian questions naturally.
+
+BIBLE VERSE QUESTIONS:
+
+When a user asks about a specific Bible verse:
+
+- Give the reference.
+- Give the verse text when appropriate.
+- Give a brief explanation.
+- Keep the response concise unless the user asks for more detail.
 
 FULL CHAPTER OR PSALM REQUESTS:
 
-If the user explicitly asks for an entire chapter or Psalm, such as:
-- John chapter 1
-- Psalm 23
-- Genesis 1
+If the user explicitly asks for a complete Bible chapter or complete Psalm:
 
-Provide the complete passage from the beginning to the end of the requested chapter or Psalm, followed by a brief explanation.
+- Provide the complete requested passage when possible.
+- Do not replace an explicit full-chapter request with only a summary.
+- Prefer KJV when a complete quotation is required.
+- After the passage, provide a short explanation of the main message.
 
-Do not replace the requested complete passage with an abbreviated summary.
+NORMAL RESPONSE LENGTH:
 
-GENERAL RESPONSE STYLE:
+For normal questions, keep answers concise.
 
-- Keep normal responses concise.
-- Usually answer in 1–5 sentences.
-- Do not add unnecessary introductions.
-- Do not repeat the user's question.
-- Do not use unnecessary filler.
-- Do not say:
-  "As an AI..."
-  "As a language model..."
-  "I'm here to help..."
-  "Feel free to ask..."
-  "Don't hesitate..."
-  "Let's dive in..."
-  "Based on the information provided..."
-  "According to the information provided..."
-- Answer directly.
+Usually use 1–5 sentences.
+
+If the user asks for more explanation, provide more detail.
 
 GREETING AND SMALL TALK:
 
-For greetings such as:
-- Hello
-- Hi
-- Good morning
-- How are you?
-- What's up?
+For messages such as:
 
-Respond naturally and warmly in 1–2 sentences.
+Hello
+Hi
+Good morning
+Good afternoon
+How are you?
+What's up?
 
-Do not unnecessarily give a long church introduction.
+Respond naturally and warmly.
+
+Do not automatically give a church introduction.
+
+DO NOT USE FILLER:
+
+Never repeatedly say:
+
+"Feel free to ask..."
+"Don't hesitate..."
+"I'm here to help..."
+"Let's dive in..."
+"Based on the information provided..."
+"According to the information provided..."
+"What would you like to know today?"
+"If you have any questions..."
+"Please feel free..."
+
+Answer the user's actual question directly.
+
+NEVER DISCLOSE YOUR AI IDENTITY:
+
+Never say:
+
+"As an AI..."
+"As an AI language model..."
+"I am an AI..."
+"I am a chatbot..."
+"As a language model..."
+"According to my training..."
+
+Speak naturally as the official church assistant.
 
 IMPORTANT:
+
 Accuracy is more important than sounding complete.
-If information is unknown, do not guess.
+
+Never invent information.
 `;
 
 
 // ============================================================
-// CHURCH INTENT DETECTION
+// NORMALIZE TEXT
 // ============================================================
 
 function normalizeText(text) {
@@ -195,18 +262,33 @@ function normalizeText(text) {
     .trim();
 }
 
+
+// ============================================================
+// KEYWORD HELPER
+// ============================================================
+
 function containsAny(text, keywords) {
   return keywords.some((keyword) => text.includes(keyword));
 }
 
+
+// ============================================================
+// CHURCH INTENT DETECTION
+// ============================================================
+
 function detectChurchIntent(message) {
   const text = normalizeText(message);
 
+  // ----------------------------------------------------------
   // LOCATION
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "where is salvation to all nations",
       "where is salvation to all nation",
+      "location of salvation to all nations",
+      "location of salvation",
       "where is the church",
       "where is your church",
       "where are you located",
@@ -218,7 +300,6 @@ function detectChurchIntent(message) {
       "ministry location",
       "ministry address",
       "location of the church",
-      "location of salvation",
       "where can i find the church",
       "where can i find salvation",
       "where can we find the church",
@@ -249,7 +330,11 @@ function detectChurchIntent(message) {
     return "location";
   }
 
+
+  // ----------------------------------------------------------
   // SERVICE TIMES
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "service time",
@@ -285,7 +370,11 @@ function detectChurchIntent(message) {
     return "services";
   }
 
+
+  // ----------------------------------------------------------
   // MISSION
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "church mission",
@@ -304,7 +393,11 @@ function detectChurchIntent(message) {
     return "mission";
   }
 
+
+  // ----------------------------------------------------------
   // SERMONS
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "sermon",
@@ -333,7 +426,11 @@ function detectChurchIntent(message) {
     return "sermons";
   }
 
+
+  // ----------------------------------------------------------
   // EVENTS
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "church event",
@@ -356,7 +453,11 @@ function detectChurchIntent(message) {
     return "events";
   }
 
+
+  // ----------------------------------------------------------
   // GIVING
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "giving",
@@ -383,7 +484,11 @@ function detectChurchIntent(message) {
     return "giving";
   }
 
+
+  // ----------------------------------------------------------
   // CONTACT
+  // ----------------------------------------------------------
+
   if (
     containsAny(text, [
       "contact the church",
@@ -413,6 +518,7 @@ function detectChurchIntent(message) {
     return "contact";
   }
 
+
   return null;
 }
 
@@ -439,14 +545,40 @@ function getChurchResponse(intent) {
       return `For upcoming church events, please check the '/events' page.`;
 
     case "giving":
-      return `${CHURCH_INFO.giving}`;
+      return CHURCH_INFO.giving;
 
     case "contact":
-      return `${CHURCH_INFO.contact}`;
+      return CHURCH_INFO.contact;
 
     default:
       return null;
   }
+}
+
+
+// ============================================================
+// CONVERT FRONTEND MESSAGES TO GEMINI FORMAT
+// ============================================================
+
+function convertMessagesToGemini(messages) {
+  return messages
+    .filter(
+      (message) =>
+        message &&
+        ["user", "assistant"].includes(message.role) &&
+        typeof message.content === "string" &&
+        message.content.trim()
+    )
+    .slice(-10)
+    .map((message) => ({
+      role: message.role === "assistant" ? "model" : "user",
+
+      parts: [
+        {
+          text: message.content.trim(),
+        },
+      ],
+    }));
 }
 
 
@@ -459,8 +591,9 @@ export default async function handler(req, res) {
   // 1. CORS
   // ----------------------------------------------------------
 
-  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
+
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
@@ -471,13 +604,18 @@ export default async function handler(req, res) {
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
   );
 
-  // Handle browser OPTIONS preflight request
+
+  // ----------------------------------------------------------
+  // OPTIONS
+  // ----------------------------------------------------------
+
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
+
   // ----------------------------------------------------------
-  // 2. POST ONLY
+  // POST ONLY
   // ----------------------------------------------------------
 
   if (req.method !== "POST") {
@@ -486,22 +624,24 @@ export default async function handler(req, res) {
     });
   }
 
+
   // ----------------------------------------------------------
-  // 3. GROQ API KEY
+  // GEMINI API KEY
   // ----------------------------------------------------------
 
-  const API_KEY = process.env.GROQ_API_KEY;
+  const API_KEY = process.env.GEMINI_API_KEY;
 
   if (!API_KEY) {
-    console.error("Missing GROQ_API_KEY environment variable.");
+    console.error("Missing GEMINI_API_KEY environment variable.");
 
     return res.status(500).json({
-      error: "Server is missing GROQ_API_KEY.",
+      error: "Server is missing GEMINI_API_KEY.",
     });
   }
 
+
   // ----------------------------------------------------------
-  // 4. PARSE REQUEST BODY
+  // PARSE BODY
   // ----------------------------------------------------------
 
   let body = req.body;
@@ -516,7 +656,9 @@ export default async function handler(req, res) {
     }
   }
 
+
   const { messages } = body || {};
+
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return res.status(400).json({
@@ -524,8 +666,9 @@ export default async function handler(req, res) {
     });
   }
 
+
   // ----------------------------------------------------------
-  // 5. FIND LAST USER MESSAGE
+  // FIND LAST USER MESSAGE
   // ----------------------------------------------------------
 
   const lastUserMessage = [...messages]
@@ -537,13 +680,16 @@ export default async function handler(req, res) {
         typeof message.content === "string"
     );
 
+
   if (!lastUserMessage) {
     return res.status(400).json({
       error: "No valid user message found.",
     });
   }
 
+
   const userText = lastUserMessage.content.trim();
+
 
   if (!userText) {
     return res.status(400).json({
@@ -551,20 +697,9 @@ export default async function handler(req, res) {
     });
   }
 
+
   // ----------------------------------------------------------
-  // 6. HANDLE AUTHORITATIVE CHURCH QUESTIONS FIRST
-  // ----------------------------------------------------------
-  //
-  // This is the most important change.
-  //
-  // Known church facts are answered by our own code instead
-  // of asking Groq to generate them.
-  //
-  // Therefore Groq cannot change:
-  //
-  // Atwima Nwabiagya North District
-  //
-  // into another district.
+  // HANDLE CHURCH INFORMATION DIRECTLY
   // ----------------------------------------------------------
 
   const churchIntent = detectChurchIntent(userText);
@@ -579,99 +714,119 @@ export default async function handler(req, res) {
     }
   }
 
-  // ----------------------------------------------------------
-  // 7. KEEP ONLY RECENT CONVERSATION HISTORY
-  // ----------------------------------------------------------
-  //
-  // ALLaM-2-7B has a 4K context window.
-  // Keeping the recent conversation shorter leaves room
-  // for the system instructions and generated response.
-  // ----------------------------------------------------------
-
-  const recentMessages = messages
-    .filter(
-      (message) =>
-        message &&
-        ["user", "assistant"].includes(message.role) &&
-        typeof message.content === "string"
-    )
-    .slice(-6);
 
   // ----------------------------------------------------------
-  // 8. CALL GROQ
+  // CONVERT CHAT HISTORY
+  // ----------------------------------------------------------
+
+  const geminiContents = convertMessagesToGemini(messages);
+
+
+  if (geminiContents.length === 0) {
+    return res.status(400).json({
+      error: "No valid conversation messages found.",
+    });
+  }
+
+
+  // ----------------------------------------------------------
+  // GEMINI API REQUEST
   // ----------------------------------------------------------
 
   try {
     const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent",
       {
         method: "POST",
 
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY.trim()}`,
+
+          "x-goog-api-key": API_KEY.trim(),
         },
 
         body: JSON.stringify({
-          model: "allam-2-7b",
+          systemInstruction: {
+            parts: [
+              {
+                text: SYSTEM_PROMPT,
+              },
+            ],
+          },
 
-          messages: [
-            {
-              role: "system",
-              content: SYSTEM_PROMPT,
-            },
-            ...recentMessages,
-          ],
+          contents: geminiContents,
 
-          // Lower temperature = more consistent responses
-          temperature: 0.2,
-
-          // Use the current Groq parameter
-          max_completion_tokens: 1600,
-
-          // We don't need extra generated choices
-          n: 1,
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1200,
+            candidateCount: 1,
+          },
         }),
       }
     );
 
+
     // --------------------------------------------------------
-    // 9. HANDLE GROQ ERRORS
+    // GEMINI ERROR
     // --------------------------------------------------------
 
     if (!response.ok) {
       const errorBody = await response.text();
 
-      console.error("Groq API error response:", errorBody);
+      console.error("Gemini API error:", errorBody);
 
       return res.status(response.status).json({
-        error: "Groq API request failed.",
+        error: "Gemini API request failed.",
         details: errorBody,
       });
     }
 
+
     // --------------------------------------------------------
-    // 10. PARSE GROQ RESPONSE
+    // GEMINI RESPONSE
     // --------------------------------------------------------
 
     const data = await response.json();
 
+
     const reply =
-      data.choices?.[0]?.message?.content?.trim() ||
-      "Sorry, I couldn't come up with a response.";
+      data?.candidates?.[0]?.content?.parts
+        ?.map((part) => part.text || "")
+        .join("")
+        .trim();
+
 
     // --------------------------------------------------------
-    // 11. RETURN RESPONSE
+    // EMPTY RESPONSE
+    // --------------------------------------------------------
+
+    if (!reply) {
+      console.error("Gemini returned no usable response:", data);
+
+      return res.status(500).json({
+        error: "Gemini returned an empty response.",
+      });
+    }
+
+
+    // --------------------------------------------------------
+    // RETURN RESPONSE
     // --------------------------------------------------------
 
     return res.status(200).json({
       reply,
     });
-  } catch (err) {
-    console.error("Unexpected chat server error:", err);
+
+
+  } catch (error) {
+    console.error("Unexpected Gemini server error:", error);
 
     return res.status(500).json({
       error: "Internal server error.",
+      details:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : undefined,
     });
   }
 }
