@@ -1,152 +1,677 @@
 // api/chat.js
-// Vercel Serverless Function to proxy requests to Groq API
+// Vercel Serverless Function for Salvation To All Nations AI Assistant
+// Proxies requests to Groq API while protecting authoritative church information.
 
-const SYSTEM_PROMPT = `You are the official AI Assistant for "Salvation To All Nations", a Christian ministry based in Barekese, Kumasi, Ghana.
+const CHURCH_INFO = {
+  name: "Salvation To All Nations",
+  location: "Barekese, Kumasi, Ghana",
+  district: "Atwima Nwabiagya North District",
 
-Your goal is to:
-- Serve website visitors warmly.
-- Answer questions about the church accurately using ONLY the provided context.
-- Handle all kinds of greetings and small talk naturally.
-- Provide clear, concise, biblically sound answers to spiritual or faith questions.
-- When asked for a Bible passage (e.g., "John chapter 1", "Psalm 23", "Genesis 1"), quote the full passage from verse 1 to the end of that chapter/psalm, then give a brief explanation.
+  services: {
+    sunday: "Sunday Worship: 9:00 AM",
+    wednesday: "Wednesday Bible Study: 6:30 PM",
+    friday: "Friday Prayer Night: 7:00 PM",
+  },
 
-IMPORTANT RULES:
-- NEVER say "As an AI...", "As a language model...", "I am an AI...", or anything that highlights that you are an AI or model.
-- Always speak as a friendly church assistant representing Salvation To All Nations.
-- For church facts (location, service times, mission, giving, contact, etc.), use ONLY the details below. Do NOT invent or guess any additional details.
-- If a user asks for specific address details that are not provided here, do NOT make them up. Direct them to the '/contact' page.
-- Keep answers short and direct, except when quoting a full Bible passage as requested.
-- Avoid long introductions, repeated phrases, or unnecessary filler like "feel free to ask", "don't hesitate", "I'm here to help", "based on the details provided", etc.
+  mission:
+    "A family gathered from every nation, walking together in faith, worship, and service to Christ.",
 
-CHURCH INFORMATION (AUTHORITATIVE — USE EXACTLY AS WRITTEN):
-- Church Name: Salvation To All Nations
-- Location: Barekese, Kumasi, Ghana
-- District: Atwima Nwabiagya North District
-- Service Times: 
-  * Sunday Worship: 9:00 AM
-  * Wednesday Bible Study: 6:30 PM
-  * Friday Prayer Night: 7:00 PM
-- Mission: A family gathered from every nation, walking together in faith, worship, and service to Christ.
-- Sermons: Direct users to check the '/sermons' page for recent video and audio recordings.
-- Events: Direct users to check the '/events' page for upcoming church events.
-- Giving: Mention that options include Mobile Money, bank transfer, in-person giving during service, or international giving. Direct users to the '/giving' page for specific details.
-- Contact: Direct users to the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.
+  sermons:
+    "Check the '/sermons' page for recent video and audio sermon recordings.",
 
-RESPONSE STYLE RULES:
-- Greetings & small talk: 1–2 sentences, warm and natural, then optionally invite a church/Bible question.
-- Church information questions: 1–3 sentences, using only the authoritative info above. No extra details.
-- Single-verse references (e.g., "joshua 1:8", "john 3:16"):
-  * Start directly with the answer. No long intros.
-  * Give:
-    - The verse text (1–2 lines max, in a standard translation such as NIV/ESV/KJV).
-    - A 1–2 sentence summary of the main message.
-    - 1–2 short bullet points on how it can be applied today (if relevant).
-  * Total length: aim for 2–5 sentences unless the user asks for more.
-- Full chapter / psalm requests (e.g., "John chapter 1", "Psalm 23", "Genesis 1"):
-  * Quote the full passage from verse 1 to the end of that chapter/psalm.
-  * After the quotation, add a brief explanation (2–4 sentences) summarizing the main theme and practical application.
-  * It is acceptable for these responses to be longer because of the full quotation.
-- Avoid phrases like: "Let's dive into...", "I'm here to help...", "Feel free to ask...", "Don't hesitate...", "Based on the details provided...", "Using the information given...", etc.
+  events:
+    "Check the '/events' page for upcoming church events.",
 
-TONE:
-- Warm, welcoming, respectful, pastoral.
-- Clear and concise, except when quoting full passages as requested.
-- Never mention that you are an AI or language model.
+  giving:
+    "Giving options include Mobile Money, bank transfer, in-person giving during service, or international giving. Check the '/giving' page for specific details.",
 
-EXAMPLE BEHAVIOR:
-- User: "where is salvation to all nations located?"
-  Assistant: "We are located in Barekese, in the Atwima Nwabiagya North District, Kumasi, Ghana. For more specific directions, please check our '/contact' page."
+  contact:
+    "Check the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.",
+};
 
-- User: "joshua 1:8"
-  Assistant: "Joshua 1:8 says: 'Keep this Book of the Law always on your lips; meditate on it day and night, so that you may be careful to do everything written in it. Then you will be prosperous and successful.' (NIV). The main message is to constantly meditate on God's Word and obey it. Application: (1) Make time daily to read and reflect on Scripture; (2) Aim to obey what you read, trusting God for guidance and success."
 
-- User: "John chapter 1"
-  Assistant: "John 1 (NIV):
-  1 In the beginning was the Word, and the Word was with God, and the Word was God.
-  2 He was with God in the beginning.
-  3 Through him all things were made; without him nothing was made that has been made.
-  4 In him was life, and that life was the light of all mankind.
-  5 The light shines in the darkness, and the darkness has not overcome it.
-  ...
-  14 The Word became flesh and made his dwelling among us. We have seen his glory, the glory of the one and only Son, who came from the Father, full of grace and truth.
-  (Continue quoting all verses up to the end of the chapter.)
+// ============================================================
+// SYSTEM PROMPT
+// ============================================================
 
-  This chapter reveals Jesus as the eternal Word who became human. It teaches that He is God, the Creator, and the true Light. Application: Trust Jesus as God's Word in human form, and let His light guide your life."
+const SYSTEM_PROMPT = `
+You are the official church assistant for "Salvation To All Nations", a Christian ministry based in Barekese, Kumasi, Ghana.
 
-- User: "how are you?"
-  Assistant: "I'm doing well, thank you! How about you? You can ask me about Salvation To All Nations Church, our service times, or any Bible questions you have."`;
+ROLE:
+- Speak warmly, naturally, respectfully, and pastorally.
+- Answer Bible and Christian questions clearly and biblically.
+- Answer questions about Salvation To All Nations using ONLY the authoritative church information supplied below.
+- Never invent church facts, addresses, phone numbers, emails, service times, events, ministries, leaders, history, or other details that are not provided.
+- Never mention that you are an AI, language model, chatbot, model, or artificial intelligence.
+- Do not pretend to know information that is not provided.
+
+AUTHORITATIVE CHURCH INFORMATION:
+
+Church Name:
+Salvation To All Nations
+
+Location:
+Barekese, Kumasi, Ghana
+
+District:
+Atwima Nwabiagya North District
+
+Service Times:
+- Sunday Worship: 9:00 AM
+- Wednesday Bible Study: 6:30 PM
+- Friday Prayer Night: 7:00 PM
+
+Mission:
+A family gathered from every nation, walking together in faith, worship, and service to Christ.
+
+Sermons:
+Users should check the '/sermons' page for recent video and audio sermon recordings.
+
+Events:
+Users should check the '/events' page for upcoming church events.
+
+Giving:
+Options include Mobile Money, bank transfer, in-person giving during service, or international giving.
+Users should check the '/giving' page for specific details.
+
+Contact:
+Users should check the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.
+
+CHURCH INFORMATION RULES:
+
+1. Use the authoritative church information exactly.
+2. Never change, reinterpret, or guess church facts.
+3. If the user asks for specific address details that are not provided, direct them to '/contact'.
+4. If the user asks about sermons, direct them to '/sermons'.
+5. If the user asks about events, direct them to '/events'.
+6. If the user asks about giving, provide only the known giving options and direct them to '/giving' for specific details.
+7. If the user asks for contact information, direct them to '/contact'.
+8. If the user asks about a church fact that is not provided, say that the available church information does not specify it and direct them to the appropriate page when possible.
+9. Never create additional church information just to make an answer sound complete.
+
+BIBLE AND CHRISTIAN QUESTIONS:
+
+You may answer questions about:
+- The Bible
+- Bible verses and passages
+- Jesus Christ
+- God
+- The Holy Spirit
+- Salvation
+- Faith
+- Prayer
+- Sin and repentance
+- Forgiveness
+- Grace
+- Love
+- Worship
+- Christian living
+- Biblical characters
+- Biblical events
+- Christian doctrine
+- Spiritual growth
+- Other genuine Bible or Christian-related questions
+
+For Bible and Christian questions:
+- Give a concise, biblically sound answer.
+- Avoid unnecessary theological lectures.
+- If the user asks for explanation or deeper detail, provide more detail.
+- Do not present personal opinions as biblical facts.
+- When different Christian interpretations exist, briefly acknowledge them when necessary.
+
+BIBLE VERSE REQUESTS:
+
+If the user asks for a specific Bible verse, such as:
+- John 3:16
+- Joshua 1:8
+- Romans 8:28
+
+Provide:
+1. The verse reference.
+2. The verse text.
+3. A brief explanation of its main message.
+
+Keep the response concise.
+
+Use a standard Bible translation when possible. Prefer KJV when a complete quotation is required.
+
+FULL CHAPTER OR PSALM REQUESTS:
+
+If the user explicitly asks for an entire chapter or Psalm, such as:
+- John chapter 1
+- Psalm 23
+- Genesis 1
+
+Provide the complete passage from the beginning to the end of the requested chapter or Psalm, followed by a brief explanation.
+
+Do not replace the requested complete passage with an abbreviated summary.
+
+GENERAL RESPONSE STYLE:
+
+- Keep normal responses concise.
+- Usually answer in 1–5 sentences.
+- Do not add unnecessary introductions.
+- Do not repeat the user's question.
+- Do not use unnecessary filler.
+- Do not say:
+  "As an AI..."
+  "As a language model..."
+  "I'm here to help..."
+  "Feel free to ask..."
+  "Don't hesitate..."
+  "Let's dive in..."
+  "Based on the information provided..."
+  "According to the information provided..."
+- Answer directly.
+
+GREETING AND SMALL TALK:
+
+For greetings such as:
+- Hello
+- Hi
+- Good morning
+- How are you?
+- What's up?
+
+Respond naturally and warmly in 1–2 sentences.
+
+Do not unnecessarily give a long church introduction.
+
+IMPORTANT:
+Accuracy is more important than sounding complete.
+If information is unknown, do not guess.
+`;
+
+
+// ============================================================
+// CHURCH INTENT DETECTION
+// ============================================================
+
+function normalizeText(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s/']/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function containsAny(text, keywords) {
+  return keywords.some((keyword) => text.includes(keyword));
+}
+
+function detectChurchIntent(message) {
+  const text = normalizeText(message);
+
+  // LOCATION
+  if (
+    containsAny(text, [
+      "where is salvation to all nations",
+      "where is salvation to all nation",
+      "where is the church",
+      "where is your church",
+      "where are you located",
+      "where are you based",
+      "where is the ministry",
+      "where is your ministry",
+      "church location",
+      "church address",
+      "ministry location",
+      "ministry address",
+      "location of the church",
+      "location of salvation",
+      "where can i find the church",
+      "where can i find salvation",
+      "where can we find the church",
+      "where do you worship",
+      "where do you guys worship",
+      "which area is the church",
+      "which area are you in",
+      "which part of kumasi",
+      "which part of kumasi are you",
+      "what area is the church",
+      "what town is the church in",
+      "what town are you in",
+      "which district is the church",
+      "what district is the church",
+      "what district are you in",
+      "which district are you located",
+      "what is your location",
+      "tell me your location",
+      "tell me where the church is",
+      "church situated",
+      "church based",
+      "ministry based",
+      "are you in barekese",
+      "is the church in barekese",
+      "is salvation to all nations in barekese",
+    ])
+  ) {
+    return "location";
+  }
+
+  // SERVICE TIMES
+  if (
+    containsAny(text, [
+      "service time",
+      "service times",
+      "church service",
+      "church services",
+      "when is sunday service",
+      "when is sunday worship",
+      "what time is sunday service",
+      "what time is sunday worship",
+      "sunday worship",
+      "sunday service",
+      "wednesday bible study",
+      "when is bible study",
+      "what time is bible study",
+      "bible study time",
+      "friday prayer",
+      "friday prayer night",
+      "when is prayer night",
+      "what time is prayer night",
+      "prayer night time",
+      "church schedule",
+      "service schedule",
+      "worship time",
+      "what time do you worship",
+      "when do you worship",
+      "when are your services",
+      "when is your service",
+      "when do services start",
+      "what time does church start",
+    ])
+  ) {
+    return "services";
+  }
+
+  // MISSION
+  if (
+    containsAny(text, [
+      "church mission",
+      "your mission",
+      "ministry mission",
+      "what is the mission",
+      "what's the mission",
+      "mission of the church",
+      "mission of salvation to all nations",
+      "what does the church stand for",
+      "what does salvation to all nations stand for",
+      "church vision",
+      "ministry vision",
+    ])
+  ) {
+    return "mission";
+  }
+
+  // SERMONS
+  if (
+    containsAny(text, [
+      "sermon",
+      "sermons",
+      "preaching",
+      "preachings",
+      "recent sermon",
+      "recent sermons",
+      "latest sermon",
+      "latest sermons",
+      "church message",
+      "church messages",
+      "sermon recording",
+      "sermon recordings",
+      "sermon video",
+      "sermon videos",
+      "sermon audio",
+      "sermon audios",
+      "listen to sermons",
+      "watch sermons",
+      "where can i watch sermons",
+      "where can i find sermons",
+      "where are the sermons",
+    ])
+  ) {
+    return "sermons";
+  }
+
+  // EVENTS
+  if (
+    containsAny(text, [
+      "church event",
+      "church events",
+      "upcoming event",
+      "upcoming events",
+      "church program",
+      "church programs",
+      "upcoming program",
+      "upcoming programs",
+      "what events do you have",
+      "what events are coming",
+      "what programs are coming",
+      "church activities",
+      "upcoming church activities",
+      "where can i see church events",
+      "where can i find church events",
+    ])
+  ) {
+    return "events";
+  }
+
+  // GIVING
+  if (
+    containsAny(text, [
+      "giving",
+      "give to the church",
+      "give to salvation to all nations",
+      "donate to the church",
+      "donation",
+      "donations",
+      "offering",
+      "tithe",
+      "tithes",
+      "how can i give",
+      "how do i give",
+      "ways to give",
+      "giving options",
+      "how can i donate",
+      "how do i donate",
+      "mobile money",
+      "momo",
+      "bank transfer",
+      "international giving",
+    ])
+  ) {
+    return "giving";
+  }
+
+  // CONTACT
+  if (
+    containsAny(text, [
+      "contact the church",
+      "contact salvation to all nations",
+      "contact the ministry",
+      "church contact",
+      "ministry contact",
+      "church phone",
+      "church number",
+      "church telephone",
+      "church email",
+      "ministry phone",
+      "ministry number",
+      "ministry email",
+      "phone number",
+      "email address",
+      "how can i contact",
+      "how do i contact",
+      "contact information",
+      "contact details",
+      "get in touch with the church",
+      "reach the church",
+      "reach the ministry",
+      "contact form",
+    ])
+  ) {
+    return "contact";
+  }
+
+  return null;
+}
+
+
+// ============================================================
+// EXACT CHURCH RESPONSES
+// ============================================================
+
+function getChurchResponse(intent) {
+  switch (intent) {
+    case "location":
+      return `Salvation To All Nations is located in ${CHURCH_INFO.location}, in the ${CHURCH_INFO.district}. For specific address details, please check the '/contact' page.`;
+
+    case "services":
+      return `Our services are ${CHURCH_INFO.services.sunday}, ${CHURCH_INFO.services.wednesday}, and ${CHURCH_INFO.services.friday}.`;
+
+    case "mission":
+      return `Our mission is: "${CHURCH_INFO.mission}"`;
+
+    case "sermons":
+      return `For recent video and audio sermons, please check the '/sermons' page.`;
+
+    case "events":
+      return `For upcoming church events, please check the '/events' page.`;
+
+    case "giving":
+      return `${CHURCH_INFO.giving}`;
+
+    case "contact":
+      return `${CHURCH_INFO.contact}`;
+
+    default:
+      return null;
+  }
+}
+
+
+// ============================================================
+// HANDLER
+// ============================================================
 
 export default async function handler(req, res) {
-  // 1. Enable CORS for browser requests
+  // ----------------------------------------------------------
+  // 1. CORS
+  // ----------------------------------------------------------
+
   res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS,PATCH,DELETE,POST,PUT");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+  );
+
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
   );
 
-  // Handle browser OPTIONS preflight check
+  // Handle browser OPTIONS preflight request
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // 2. Restrict to POST requests only
+  // ----------------------------------------------------------
+  // 2. POST ONLY
+  // ----------------------------------------------------------
+
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed",
+    });
   }
 
-  // 3. Verify API Key presence
+  // ----------------------------------------------------------
+  // 3. GROQ API KEY
+  // ----------------------------------------------------------
+
   const API_KEY = process.env.GROQ_API_KEY;
+
   if (!API_KEY) {
     console.error("Missing GROQ_API_KEY environment variable.");
-    return res.status(500).json({ error: "Server is missing GROQ_API_KEY." });
+
+    return res.status(500).json({
+      error: "Server is missing GROQ_API_KEY.",
+    });
   }
 
-  // 4. Safely parse request body
+  // ----------------------------------------------------------
+  // 4. PARSE REQUEST BODY
+  // ----------------------------------------------------------
+
   let body = req.body;
+
   if (typeof body === "string") {
     try {
       body = JSON.parse(body);
     } catch {
-      return res.status(400).json({ error: "Invalid JSON body." });
+      return res.status(400).json({
+        error: "Invalid JSON body.",
+      });
     }
   }
 
   const { messages } = body || {};
+
   if (!Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({ error: "Missing or invalid messages array." });
+    return res.status(400).json({
+      error: "Missing or invalid messages array.",
+    });
   }
 
-  const recentMessages = messages.slice(-10);
+  // ----------------------------------------------------------
+  // 5. FIND LAST USER MESSAGE
+  // ----------------------------------------------------------
+
+  const lastUserMessage = [...messages]
+    .reverse()
+    .find(
+      (message) =>
+        message &&
+        message.role === "user" &&
+        typeof message.content === "string"
+    );
+
+  if (!lastUserMessage) {
+    return res.status(400).json({
+      error: "No valid user message found.",
+    });
+  }
+
+  const userText = lastUserMessage.content.trim();
+
+  if (!userText) {
+    return res.status(400).json({
+      error: "User message cannot be empty.",
+    });
+  }
+
+  // ----------------------------------------------------------
+  // 6. HANDLE AUTHORITATIVE CHURCH QUESTIONS FIRST
+  // ----------------------------------------------------------
+  //
+  // This is the most important change.
+  //
+  // Known church facts are answered by our own code instead
+  // of asking Groq to generate them.
+  //
+  // Therefore Groq cannot change:
+  //
+  // Atwima Nwabiagya North District
+  //
+  // into another district.
+  // ----------------------------------------------------------
+
+  const churchIntent = detectChurchIntent(userText);
+
+  if (churchIntent) {
+    const churchResponse = getChurchResponse(churchIntent);
+
+    if (churchResponse) {
+      return res.status(200).json({
+        reply: churchResponse,
+      });
+    }
+  }
+
+  // ----------------------------------------------------------
+  // 7. KEEP ONLY RECENT CONVERSATION HISTORY
+  // ----------------------------------------------------------
+  //
+  // ALLaM-2-7B has a 4K context window.
+  // Keeping the recent conversation shorter leaves room
+  // for the system instructions and generated response.
+  // ----------------------------------------------------------
+
+  const recentMessages = messages
+    .filter(
+      (message) =>
+        message &&
+        ["user", "assistant"].includes(message.role) &&
+        typeof message.content === "string"
+    )
+    .slice(-6);
+
+  // ----------------------------------------------------------
+  // 8. CALL GROQ
+  // ----------------------------------------------------------
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY.trim()}`,
-      },
-      body: JSON.stringify({
-        model: "allam-2-7b", 
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...recentMessages],
-        temperature: 0.5,
-        max_tokens: 300,
-      }),
-    });
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY.trim()}`,
+        },
+
+        body: JSON.stringify({
+          model: "allam-2-7b",
+
+          messages: [
+            {
+              role: "system",
+              content: SYSTEM_PROMPT,
+            },
+            ...recentMessages,
+          ],
+
+          // Lower temperature = more consistent responses
+          temperature: 0.2,
+
+          // Use the current Groq parameter
+          max_completion_tokens: 1600,
+
+          // We don't need extra generated choices
+          n: 1,
+        }),
+      }
+    );
+
+    // --------------------------------------------------------
+    // 9. HANDLE GROQ ERRORS
+    // --------------------------------------------------------
 
     if (!response.ok) {
       const errorBody = await response.text();
+
       console.error("Groq API error response:", errorBody);
-      return res.status(response.status).json({ error: "Groq API request failed.", details: errorBody });
+
+      return res.status(response.status).json({
+        error: "Groq API request failed.",
+        details: errorBody,
+      });
     }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't come up with a response.";
+    // --------------------------------------------------------
+    // 10. PARSE GROQ RESPONSE
+    // --------------------------------------------------------
 
-    return res.status(200).json({ reply });
+    const data = await response.json();
+
+    const reply =
+      data.choices?.[0]?.message?.content?.trim() ||
+      "Sorry, I couldn't come up with a response.";
+
+    // --------------------------------------------------------
+    // 11. RETURN RESPONSE
+    // --------------------------------------------------------
+
+    return res.status(200).json({
+      reply,
+    });
   } catch (err) {
     console.error("Unexpected chat server error:", err);
-    return res.status(500).json({ error: "Internal server error." });
+
+    return res.status(500).json({
+      error: "Internal server error.",
+    });
   }
 }
