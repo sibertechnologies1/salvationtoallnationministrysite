@@ -745,23 +745,21 @@ export default async function handler(req, res) {
           "x-goog-api-key": API_KEY.trim(),
         },
 
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [
-              {
-                text: SYSTEM_PROMPT,
-              },
-            ],
-          },
-
-          contents: geminiContents,
-
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1200,
-            candidateCount: 1,
-          },
-        }),
+       body: JSON.stringify({
+  systemInstruction: {
+    parts: [
+      {
+        text: SYSTEM_PROMPT,
+      },
+    ],
+  },
+  contents: geminiContents,
+  generationConfig: {
+    temperature: 0.5, 
+    maxOutputTokens: 1200,
+    candidateCount: 1,
+  },
+}),
       }
     );
 
