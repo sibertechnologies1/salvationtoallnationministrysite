@@ -1,4 +1,6 @@
- <section className="relative bg-green-950 py-20 md:py-24 px-6 overflow-hidden">
+ export default function PrayerSection() {
+  return (
+     <section className="relative bg-green-950 py-20 md:py-24 px-6 overflow-hidden">
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-amber-500/10 blur-3xl" />
 
@@ -42,3 +44,5 @@
           <div className="w-12 h-px bg-amber-500 mx-auto mt-10" />
         </div>
       </section>
+  )}
+ 

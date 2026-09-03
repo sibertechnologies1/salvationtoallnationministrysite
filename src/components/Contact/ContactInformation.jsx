@@ -1,4 +1,6 @@
-    <section className="bg-stone-50 py-20 md:py-24 px-6">
+    export default function ContactInformation() {
+  return (
+        <section className="bg-stone-50 py-20 md:py-24 px-6">
         <div className="max-w-screen-xl mx-auto">
           <div className="max-w-3xl mx-auto text-center mb-14">
             <p className="text-xs md:text-sm tracking-[0.25em] uppercase text-amber-600 font-semibold mb-4">
@@ -186,3 +188,5 @@
           </div>
         </div>
       </section>
+  )}
+    

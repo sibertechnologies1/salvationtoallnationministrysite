@@ -1,4 +1,7 @@
-   <section className="bg-white py-20 md:py-24 px-6">
+export default function SocialMediaSection() {
+    return (
+
+           <section className="bg-white py-20 md:py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs md:text-sm tracking-[0.25em] uppercase text-amber-600 font-semibold mb-4">
             Stay Connected
@@ -81,3 +84,6 @@
           </div>
         </div>
       </section>
+    )
+}   
+   

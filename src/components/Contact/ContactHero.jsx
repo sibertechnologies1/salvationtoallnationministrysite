@@ -1,5 +1,8 @@
   import contact from "../../assets/contact.jpg";
-  <section
+  
+  export default function ContactHero() {
+    return (
+         <section
         className="relative min-h-[520px] flex items-center pt-28 pb-20 px-6 bg-cover bg-center overflow-hidden"
         style={{ backgroundImage: `url(${contact})` }}
       >
@@ -51,3 +54,5 @@
           </a>
         </div>
       </section>
+    )}
+ 
