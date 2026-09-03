@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
-import aboutHeroImage from "../../assets/aboutus.jpg"; // adjust path to wherever you place the image
-import pastorPhoto from "../../assets/pastor.jpg"; // TODO: replace with real leader photo
+import aboutHeroImage from "../../assets/aboutus.jpg"; 
+import pastorPhoto from "../../assets/pastor.jpg"; 
 
 const coreValues = [
   {
