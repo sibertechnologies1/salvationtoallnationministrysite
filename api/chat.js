@@ -475,11 +475,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "No valid conversation messages found." });
   }
 
-  // Gemini Execution with Fallbacks and Timeout Safeguards
+
+// Gemini Execution with Valid Active Endpoints & Timeout Safeguards
 const MODELS = [
-  "gemini-1.5-flash",
   "gemini-2.5-flash",
-  "gemini-3.5-flash-lite"
+  "gemini-2.5-flash-lite",
+  "gemini-1.5-flash",
 ];
   let finalReply = null;
   let lastErrorDetails = null;
