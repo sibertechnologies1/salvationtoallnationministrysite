@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
-import SermonsHero from "../../components/Sermons/SermonsHero";
+import SermonHero from "../../components/Sermons/SermonHero";
 import SermonSearchBar from "../../components/Sermons/SermonSearchBar";
 import SermonCard from "../../components/Sermons/SermonCard";
 import SermonModal from "../../components/Sermons/SermonModal";
@@ -45,7 +45,7 @@ export default function Sermons() {
     <>
       <Navbar />
 
-      <SermonsHero />
+      <SermonHero />
 
       <section className="bg-white py-20 px-6">
         <div className="max-w-screen-xl mx-auto">

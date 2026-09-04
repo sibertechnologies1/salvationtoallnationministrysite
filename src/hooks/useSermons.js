@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 
-// Fetches sermons from our own /api/sermons endpoint (never talks to
-// Google directly). Used by both the Home page's Latest Sermon section
-// and the full Sermons page, so they always stay in sync automatically.
+
 export function useSermons() {
   const [sermons, setSermons] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
