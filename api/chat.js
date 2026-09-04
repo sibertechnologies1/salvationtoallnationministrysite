@@ -11,19 +11,25 @@ const CHURCH_INFO = {
   name: "Salvation To All Nations",
   location: "Barekese, Kumasi, Ghana",
   district: "Atwima Nwabiagya North District",
+
   services: {
     sunday: "Sunday Worship: 9:00 AM",
     wednesday: "Wednesday Bible Study: 6:30 PM",
     friday: "Friday Prayer Night: 7:00 PM",
   },
+
   mission:
     "A family gathered from every nation, walking together in faith, worship, and service to Christ.",
+
   sermons:
     "Check the '/sermons' page for recent video and audio sermon recordings.",
+
   events:
     "Check the '/events' page for upcoming church events.",
+
   giving:
     "Giving options include Mobile Money, bank transfer, in-person giving during service, or international giving. Check the '/giving' page for specific details.",
+
   contact:
     "Check the '/contact' page for the online contact form, phone numbers, and email address to reach the ministry directly.",
 };
@@ -36,9 +42,11 @@ const SYSTEM_PROMPT = `
 You are the official church assistant for Salvation To All Nations, a Christian ministry based in Barekese, Kumasi, Ghana.
 
 YOUR ROLE:
+
 You are a warm, natural, respectful and helpful church assistant.
 
 You answer:
+
 - Bible questions
 - Bible verse questions
 - Bible chapter questions
@@ -63,11 +71,13 @@ You answer:
 You may also answer questions about Salvation To All Nations, but church-specific facts must follow the authoritative information provided below.
 
 IMPORTANT CHURCH FACT RULES:
+
 The following information is authoritative:
 
 Church Name: Salvation To All Nations
 Location: Barekese, Kumasi, Ghana
 District: Atwima Nwabiagya North District
+
 Service Times:
 - Sunday Worship: 9:00 AM
 - Wednesday Bible Study: 6:30 PM
@@ -76,12 +86,20 @@ Service Times:
 Mission:
 A family gathered from every nation, walking together in faith, worship, and service to Christ.
 
-Sermons: Check '/sermons' page for recent video and audio sermon recordings.
-Events: Check '/events' page for upcoming church events.
-Giving: Options include Mobile Money, bank transfer, in-person giving, or international giving. Check '/giving' page.
-Contact: Check '/contact' page for online contact form, phone numbers, and email address.
+Sermons:
+Check '/sermons' page for recent video and audio sermon recordings.
+
+Events:
+Check '/events' page for upcoming church events.
+
+Giving:
+Options include Mobile Money, bank transfer, in-person giving, or international giving. Check '/giving' page.
+
+Contact:
+Check '/contact' page for online contact form, phone numbers, and email address.
 
 NEVER:
+
 - Change the church location or district.
 - Invent addresses, phone numbers, email addresses, service times, leaders, history, programs, events, or giving details.
 - Guess missing church information.
@@ -89,26 +107,46 @@ NEVER:
 If specific church information is not provided, state that the available information does not specify it and direct the user to the appropriate site page.
 
 BIBLE AND CHRISTIAN QUESTIONS:
-Answer genuine Bible and Christian questions naturally. Recognize references across book, chapter, verse, and passages.
+
+Answer genuine Bible and Christian questions naturally.
+
+Recognize references across book, chapter, verse, and passages.
 
 BIBLE VERSE QUESTIONS:
-When asked about a verse, give reference, verse text when appropriate, and a brief explanation. Keep answers concise unless asked for details.
+
+When asked about a verse, give reference, verse text when appropriate, and a brief explanation.
+
+Keep answers concise unless asked for details.
 
 FULL CHAPTER OR PSALM REQUESTS:
+
 When asked for a full chapter/psalm, provide the complete passage (prefer KJV) followed by a short explanation of the main message.
 
 NORMAL RESPONSE LENGTH:
+
 Keep standard answers concise (1–5 sentences).
 
 GREETING AND SMALL TALK:
+
 Respond naturally and warmly without forcing an automatic church pitch.
 
 DO NOT USE FILLER / DISCLOSE AI IDENTITY:
-Answer questions directly. Never use artificial filler phrases ("feel free to ask", "let's dive in") and never disclose AI identity ("As an AI language model...").
+
+Answer questions directly.
+
+Never use artificial filler phrases such as:
+- "feel free to ask"
+- "let's dive in"
+
+Never disclose AI identity such as:
+- "As an AI language model..."
+- "I am an AI..."
+
+Always answer naturally.
 `;
 
 // ============================================================
-// NORMALIZE TEXT
+// TEXT NORMALIZATION
 // ============================================================
 
 function normalizeText(text) {
@@ -134,6 +172,7 @@ function containsAny(text, keywords) {
 function detectChurchIntent(message) {
   const text = normalizeText(message);
 
+  // LOCATION
   if (
     containsAny(text, [
       "where is salvation to all nations",
@@ -181,6 +220,7 @@ function detectChurchIntent(message) {
     return "location";
   }
 
+  // SERVICES
   if (
     containsAny(text, [
       "service time",
@@ -216,6 +256,7 @@ function detectChurchIntent(message) {
     return "services";
   }
 
+  // MISSION
   if (
     containsAny(text, [
       "church mission",
@@ -234,6 +275,7 @@ function detectChurchIntent(message) {
     return "mission";
   }
 
+  // SERMONS
   if (
     containsAny(text, [
       "sermon",
@@ -262,6 +304,7 @@ function detectChurchIntent(message) {
     return "sermons";
   }
 
+  // EVENTS
   if (
     containsAny(text, [
       "church event",
@@ -284,6 +327,7 @@ function detectChurchIntent(message) {
     return "events";
   }
 
+  // GIVING
   if (
     containsAny(text, [
       "giving",
@@ -310,6 +354,7 @@ function detectChurchIntent(message) {
     return "giving";
   }
 
+  // CONTACT
   if (
     containsAny(text, [
       "contact the church",
@@ -399,49 +444,183 @@ function convertMessagesToGemini(messages) {
 }
 
 // ============================================================
+// WAIT HELPER
+// ============================================================
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ============================================================
+// GEMINI REQUEST
+// ============================================================
+
+async function requestGemini({
+  model,
+  apiKey,
+  contents,
+  timeoutMs = 9000,
+}) {
+  const controller = new AbortController();
+
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey.trim(),
+        },
+
+        signal: controller.signal,
+
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [
+              {
+                text: SYSTEM_PROMPT,
+              },
+            ],
+          },
+
+          contents,
+
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1200,
+            candidateCount: 1,
+          },
+        }),
+      }
+    );
+
+    const responseText = await response.text();
+
+    let data = null;
+
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      data = null;
+    }
+
+    if (!response.ok) {
+      const errorMessage =
+        data?.error?.message ||
+        responseText ||
+        `Gemini returned HTTP ${response.status}`;
+
+      const error = new Error(errorMessage);
+
+      error.status = response.status;
+      error.response = data;
+
+      throw error;
+    }
+
+    const extractedText = data?.candidates?.[0]?.content?.parts
+      ?.map((part) => part.text || "")
+      .join("")
+      .trim();
+
+    if (!extractedText) {
+      throw new Error("Gemini returned an empty response.");
+    }
+
+    return extractedText;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ============================================================
 // HANDLER
 // ============================================================
 
 export default async function handler(req, res) {
-  // CORS Headers
+  // ==========================================================
+  // CORS
+  // ==========================================================
+
   res.setHeader("Access-Control-Allow-Credentials", "true");
+
   res.setHeader("Access-Control-Allow-Origin", "*");
+
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
   );
+
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
   );
 
+  // ==========================================================
+  // OPTIONS
+  // ==========================================================
+
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
+  // ==========================================================
+  // ONLY POST
+  // ==========================================================
+
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed",
+    });
   }
+
+  // ==========================================================
+  // GEMINI API KEY
+  // ==========================================================
 
   const API_KEY = process.env.GEMINI_API_KEY;
+
   if (!API_KEY) {
     console.error("Missing GEMINI_API_KEY environment variable.");
-    return res.status(500).json({ error: "Server is missing GEMINI_API_KEY." });
+
+    return res.status(500).json({
+      error: "Server is missing GEMINI_API_KEY.",
+    });
   }
 
+  // ==========================================================
+  // PARSE REQUEST BODY
+  // ==========================================================
+
   let body = req.body;
+
   if (typeof body === "string") {
     try {
       body = JSON.parse(body);
     } catch {
-      return res.status(400).json({ error: "Invalid JSON body." });
+      return res.status(400).json({
+        error: "Invalid JSON body.",
+      });
     }
   }
 
   const { messages } = body || {};
+
   if (!Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({ error: "Missing or invalid messages array." });
+    return res.status(400).json({
+      error: "Missing or invalid messages array.",
+    });
   }
+
+  // ==========================================================
+  // FIND LAST USER MESSAGE
+  // ==========================================================
 
   const lastUserMessage = [...messages]
     .reverse()
@@ -453,94 +632,187 @@ export default async function handler(req, res) {
     );
 
   if (!lastUserMessage) {
-    return res.status(400).json({ error: "No valid user message found." });
+    return res.status(400).json({
+      error: "No valid user message found.",
+    });
   }
 
   const userText = lastUserMessage.content.trim();
+
   if (!userText) {
-    return res.status(400).json({ error: "User message cannot be empty." });
+    return res.status(400).json({
+      error: "User message cannot be empty.",
+    });
   }
 
-  // Handle local intent matching first
+  // ==========================================================
+  // HANDLE CHURCH QUESTIONS LOCALLY
+  // ==========================================================
+
   const churchIntent = detectChurchIntent(userText);
+
   if (churchIntent) {
     const churchResponse = getChurchResponse(churchIntent);
+
     if (churchResponse) {
-      return res.status(200).json({ reply: churchResponse });
+      return res.status(200).json({
+        reply: churchResponse,
+      });
     }
   }
+
+  // ==========================================================
+  // CONVERT MESSAGES
+  // ==========================================================
 
   const geminiContents = convertMessagesToGemini(messages);
+
   if (geminiContents.length === 0) {
-    return res.status(400).json({ error: "No valid conversation messages found." });
+    return res.status(400).json({
+      error: "No valid conversation messages found.",
+    });
   }
 
-  // Gemini Execution with Fallbacks and Timeout Safeguards
-const MODELS = [
-  "gemini-2.5-flash",
-  "gemini-3.5-flash-lite"
-];
-  let finalReply = null;
-  let lastErrorDetails = null;
+  // ==========================================================
+  // GEMINI MODELS
+  // ==========================================================
+  //
+  // These are current Gemini API model IDs.
+  //
+  // Primary:
+  // gemini-2.5-flash
+  //
+  // Fallbacks:
+  // gemini-2.5-flash-lite
+  // gemini-3.5-flash
+  //
+  // If one model is temporarily unavailable, another is tried.
+  //
+  // ==========================================================
 
-  for (const model of MODELS) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7500); // 7.5s ceiling per attempt
+  const MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-3.5-flash",
+  ];
 
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": API_KEY.trim(),
-          },
-          signal: controller.signal,
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: SYSTEM_PROMPT }],
-            },
-            contents: geminiContents,
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1200,
-              candidateCount: 1,
-            },
-          }),
+  let lastError = null;
+
+  // ==========================================================
+  // TRY MODELS
+  // ==========================================================
+
+  for (let modelIndex = 0; modelIndex < MODELS.length; modelIndex++) {
+    const model = MODELS[modelIndex];
+
+    // --------------------------------------------------------
+    // Each model gets up to 2 attempts for temporary errors.
+    // --------------------------------------------------------
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        console.log(
+          `Gemini request: model=${model}, attempt=${attempt}`
+        );
+
+        const reply = await requestGemini({
+          model,
+          apiKey: API_KEY,
+          contents: geminiContents,
+          timeoutMs: 9000,
+        });
+
+        // ----------------------------------------------------
+        // SUCCESS
+        // ----------------------------------------------------
+
+        console.log(`Gemini success using model: ${model}`);
+
+        return res.status(200).json({
+          reply,
+        });
+      } catch (error) {
+        lastError = error;
+
+        console.error(
+          `Gemini error: model=${model}, attempt=${attempt}, status=${error.status || "unknown"}, message=${error.message}`
+        );
+
+        // ----------------------------------------------------
+        // INVALID REQUEST / API KEY
+        // ----------------------------------------------------
+        //
+        // Do not waste time retrying a permanent error.
+        //
+
+        if (
+          error.status === 400 ||
+          error.status === 401 ||
+          error.status === 403
+        ) {
+          return res.status(error.status).json({
+            error:
+              error.status === 400
+                ? "Gemini rejected the request."
+                : "Gemini API authentication failed.",
+            details: error.message,
+          });
         }
-      );
 
-      clearTimeout(timeoutId);
+        // ----------------------------------------------------
+        // RETRY TEMPORARY ERRORS
+        // ----------------------------------------------------
 
-      if (response.ok) {
-        const data = await response.json();
-        const extractedText = data?.candidates?.[0]?.content?.parts
-          ?.map((part) => part.text || "")
-          .join("")
-          .trim();
+        const temporaryError =
+          error.status === 429 ||
+          error.status === 500 ||
+          error.status === 502 ||
+          error.status === 503 ||
+          error.status === 504 ||
+          error.name === "AbortError";
 
-        if (extractedText) {
-          finalReply = extractedText;
-          break; // Stop iteration once output is generated
+        if (temporaryError && attempt < 2) {
+          // Short delay before retrying.
+          await sleep(700);
+
+          continue;
         }
-      } else {
-        lastErrorDetails = await response.text();
-        console.warn(`Model ${model} returned error status ${response.status}.`);
+
+        // ----------------------------------------------------
+        // Move to next model.
+        // ----------------------------------------------------
+
+        break;
       }
-    } catch (err) {
-      clearTimeout(timeoutId);
-      console.error(`Fetch exception for model ${model}:`, err.message);
-      lastErrorDetails = err.message;
     }
   }
 
-  if (finalReply) {
-    return res.status(200).json({ reply: finalReply });
+  // ==========================================================
+  // ALL MODELS FAILED
+  // ==========================================================
+
+  console.error("All Gemini models failed.");
+
+  const status = lastError?.status;
+
+  // If Gemini is overloaded/rate limited, return 503.
+  if (
+    status === 429 ||
+    status === 500 ||
+    status === 502 ||
+    status === 503 ||
+    status === 504
+  ) {
+    return res.status(503).json({
+      error:
+        "The AI service is temporarily unavailable. Please try again shortly.",
+      details: lastError?.message || "Gemini service unavailable.",
+    });
   }
 
-  return res.status(503).json({
-    error: "Gemini API request failed across all active models.",
-    details: lastErrorDetails,
+  // Generic server error.
+  return res.status(500).json({
+    error: "The AI assistant could not generate a response.",
+    details: lastError?.message || "Unknown Gemini error.",
   });
 }
