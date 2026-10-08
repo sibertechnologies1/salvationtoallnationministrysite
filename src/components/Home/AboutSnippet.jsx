@@ -1,12 +1,29 @@
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
 import aboutImage from "../../assets/about.jpg"; 
 
 export default function AboutSnippet() {
-  // Same scroll-triggered fade-in pattern used in WelcomeStrip
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [content, setContent] = useState({
+    about_title: "A family bound by faith, not by borders.",
+    about_text: "Salvation To All Nations exists to bring the hope of Christ to every tribe, tongue, and nation. Since our founding, we've grown into a community rooted in worship, discipleship, and service, welcoming anyone who seeks a place to belong."
+  });
 
-  
+  useEffect(() => {
+    async function fetchAboutContent() {
+      const { data, error } = await supabase
+        .from('homepage_content')
+        .select('about_title, about_text')
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        setContent(data);
+      }
+    }
+    fetchAboutContent();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -43,17 +60,11 @@ export default function AboutSnippet() {
           </p>
 
           <h2 className="font-serif text-3xl md:text-[38px] leading-tight text-stone-50 mb-6">
-            A family bound by faith,
-            <br />
-            not by borders.
+            {content.about_title}
           </h2>
 
-          {/* TODO: replace with the ministry's real mission statement once provided */}
           <p className="text-stone-300 leading-relaxed mb-9">
-            Salvation To All Nations exists to bring the hope of Christ to
-            every tribe, tongue, and nation. Since our founding, we've grown
-            into a community rooted in worship, discipleship, and service,
-            welcoming anyone who seeks a place to belong.
+            {content.about_text}
           </p>
 
           <a

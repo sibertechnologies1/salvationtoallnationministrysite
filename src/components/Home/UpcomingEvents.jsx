@@ -1,21 +1,23 @@
 import { useEffect, useState } from "react";
 import { useEvents } from "../../hooks/useEvents";
-import { EVENT_SHEETS } from "../../config/eventSheets";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ];
 
+function parseLocalDate(dateString) {
+  if (!dateString) return new Date();
+  const [year, month, day] = dateString.split("T")[0].split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export default function UpcomingEvents() {
-  // Home page shows the "general" category. A future Youth page, for
-  // example, would call useEvents(EVENT_SHEETS.youth) instead.
-  const { events, isLoading, error } = useEvents(EVENT_SHEETS.general);
-  const displayEvents = events.slice(0, 3); // Home page shows top 3 only
+  const { events, isLoading, error } = useEvents("general");
+  const displayEvents = events.slice(0, 3);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Prevent page scrolling when the modal is open — same pattern as LatestSermon
   useEffect(() => {
     document.body.style.overflow = selectedEvent ? "hidden" : "";
     return () => {
@@ -30,7 +32,6 @@ export default function UpcomingEvents() {
     <>
       <section className="bg-white py-24 px-6">
         <div className="max-w-screen-lg mx-auto">
-          {/* Section Heading */}
           <div className="text-center mb-14">
             <p className="text-sm tracking-[0.2em] uppercase text-amber-500 font-semibold mb-4">
               Join Us
@@ -40,7 +41,6 @@ export default function UpcomingEvents() {
             </h2>
           </div>
 
-          {/* Loading */}
           {isLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {[1, 2, 3].map((item) => (
@@ -58,32 +58,29 @@ export default function UpcomingEvents() {
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <p className="text-center text-stone-500">
               We couldn't load upcoming events right now. Please check back shortly.
             </p>
           )}
 
-          {/* No Content */}
           {!isLoading && !error && displayEvents.length === 0 && (
             <p className="text-center text-stone-500">
               No upcoming events right now, check back soon.
             </p>
           )}
 
-          {/* Event Cards */}
           {!isLoading && !error && displayEvents.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {displayEvents.map((event) => {
-                const dateObj = new Date(event.date);
+                const dateObj = parseLocalDate(event.date);
                 const day = dateObj.getDate();
                 const month = MONTHS[dateObj.getMonth()];
                 const hasImage = Boolean(event.imageUrl);
 
                 return (
                   <button
-                    key={event.title + event.date}
+                    key={event.id || `${event.title}-${event.date}`}
                     type="button"
                     onClick={() => openEvent(event)}
                     className="group bg-white border border-stone-200 rounded-lg overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 text-left w-full"
@@ -117,7 +114,7 @@ export default function UpcomingEvents() {
                         {event.title}
                       </h3>
                       <p className="text-sm text-stone-500 mt-2">
-                        {event.time} — {event.location}
+                        {event.time} {event.location ? `— ${event.location}` : ""}
                       </p>
                     </div>
                   </button>
@@ -126,7 +123,6 @@ export default function UpcomingEvents() {
             </div>
           )}
 
-          {/* View All */}
           <div className="text-center mt-14">
             <a
               href="/events"
@@ -138,7 +134,6 @@ export default function UpcomingEvents() {
         </div>
       </section>
 
-      {/* Event Detail Modal — mirrors LatestSermon's modal shell */}
       {selectedEvent && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 md:p-8"
@@ -184,17 +179,25 @@ export default function UpcomingEvents() {
 
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-500 mb-4">
                   <span>
-                    {new Date(selectedEvent.date).toLocaleDateString(undefined, {
+                    {parseLocalDate(selectedEvent.date).toLocaleDateString(undefined, {
                       weekday: "long",
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                     })}
                   </span>
-                  <span className="text-amber-500">•</span>
-                  <span>{selectedEvent.time}</span>
-                  <span className="text-amber-500">•</span>
-                  <span>{selectedEvent.location}</span>
+                  {selectedEvent.time && (
+                    <>
+                      <span className="text-amber-500">•</span>
+                      <span>{selectedEvent.time}</span>
+                    </>
+                  )}
+                  {selectedEvent.location && (
+                    <>
+                      <span className="text-amber-500">•</span>
+                      <span>{selectedEvent.location}</span>
+                    </>
+                  )}
                 </div>
 
                 <p className="text-stone-600 leading-relaxed">

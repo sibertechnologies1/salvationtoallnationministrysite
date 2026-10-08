@@ -1,4 +1,6 @@
 export default function SermonCard({ sermon, index, openContent }) {
+  const speakerName = sermon.pastor || sermon.speaker;
+
   return (
     <button
       type="button"
@@ -51,13 +53,23 @@ export default function SermonCard({ sermon, index, openContent }) {
         <h3 className="text-green-950 font-medium text-base leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors">
           {sermon.title}
         </h3>
-        <p className="text-stone-500 text-sm mt-2">
-          {new Date(sermon.date).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
+
+        {speakerName && (
+          <p className="text-stone-700 text-sm font-medium mt-1">
+            {speakerName}
+          </p>
+        )}
+
+        <p className="text-stone-500 text-sm mt-1">
+          {sermon.date
+            ? new Date(sermon.date).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : "—"}
         </p>
+
         <p className="text-amber-600 text-xs uppercase tracking-wider mt-3 font-medium">
           {sermon.isVideo ? "Video" : sermon.isAudio ? "Audio" : "Image"}
         </p>

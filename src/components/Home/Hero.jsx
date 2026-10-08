@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { supabase } from '../../lib/supabaseClient';
 import home_hero from "../../assets/home_hero.jpg";
 
 const welcomeWords = [
@@ -11,12 +13,31 @@ const welcomeWords = [
 ];
 
 export default function Hero() {
+  const [content, setContent] = useState({
+    hero_eyebrow: 'SALVATION TO ALL NATIONS',
+    hero_title: 'Light for every nation, hope for every heart.',
+    hero_description: 'A community gathered from every tribe and tongue, walking together in faith, worship, and service to Christ.',
+  });
+
+  useEffect(() => {
+    async function fetchHeroContent() {
+      const { data, error } = await supabase
+        .from('homepage_content')
+        .select('hero_eyebrow, hero_title, hero_description')
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        setContent(data);
+      }
+    }
+    fetchHeroContent();
+  }, []);
+
   return (
     <section className="relative min-h-[100svh] md:h-[85vh] md:min-h-[600px] w-full overflow-hidden flex flex-col justify-end">
 
-      {/* =====================================================
-          BACKGROUND IMAGE
-      ====================================================== */}
+      {/* BACKGROUND IMAGE */}
       <div
         className="
           absolute
@@ -30,9 +51,7 @@ export default function Hero() {
         }}
       />
 
-      {/* =====================================================
-          DARK GREEN OVERLAY
-      ====================================================== */}
+      {/* DARK GREEN OVERLAY */}
       <div
         className="absolute inset-0"
         style={{
@@ -41,9 +60,7 @@ export default function Hero() {
         }}
       />
 
-      {/* =====================================================
-          HERO CONTENT
-      ====================================================== */}
+      {/* HERO CONTENT */}
       <div
         className="
           relative
@@ -60,23 +77,19 @@ export default function Hero() {
         "
       >
 
-        {/* Eyebrow */}
+        {/* Dynamic Eyebrow Text */}
         <p className="text-xs sm:text-sm tracking-[0.16em] sm:tracking-[0.2em] uppercase text-amber-500 font-semibold mb-4 sm:mb-6 animate-[fadeIn_0.6s_ease-out]">
-          Salvation To All Nations
+          {content.hero_eyebrow}
         </p>
 
-        {/* Main Heading */}
+        {/* Dynamic Main Heading */}
         <h1 className="font-serif text-[2.15rem] leading-[1.15] sm:text-4xl sm:leading-tight md:text-6xl max-w-3xl text-stone-50 animate-[fadeInUp_0.7s_ease-out]">
-          Light for every nation,{" "}
-          <em className="italic font-medium text-amber-500">
-            hope for every heart.
-          </em>
+          {content.hero_title}
         </h1>
 
-        {/* Description */}
+        {/* Dynamic Description */}
         <p className="text-base sm:text-lg text-stone-200 max-w-xl mt-5 sm:mt-7 mb-8 sm:mb-11 leading-relaxed animate-[fadeInUp_0.7s_ease-out_0.1s_both]">
-          A community gathered from every tribe and tongue, walking together
-          in faith, worship, and service to Christ.
+          {content.hero_description}
         </p>
 
         {/* Buttons */}
@@ -109,7 +122,6 @@ export default function Hero() {
             "
           >
             Watch latest sermon
-
             <span className="transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>
@@ -143,7 +155,6 @@ export default function Hero() {
             "
           >
             Begin Your Journey
-
             <span className="transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>
@@ -152,13 +163,9 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* =====================================================
-          MULTILINGUAL WELCOME RIBBON
-      ====================================================== */}
+      {/* MULTILINGUAL WELCOME RIBBON */}
       <div className="relative bg-green-950 border-t border-amber-500/25 py-3 sm:py-4 overflow-hidden whitespace-nowrap">
-
         <div className="flex animate-[marquee_28s_linear_infinite] w-max">
-
           {[...welcomeWords, ...welcomeWords, ...welcomeWords].map(
             (word, i) => (
               <span
@@ -169,12 +176,9 @@ export default function Hero() {
               </span>
             )
           )}
-
         </div>
-
       </div>
 
     </section>
   );
 }
-

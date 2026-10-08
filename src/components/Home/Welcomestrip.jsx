@@ -1,23 +1,41 @@
 import { useEffect, useRef, useState } from "react";
-
-const stats = [
-  { number: "12+", label: "Years Active" },
-  { number: "30+", label: "Nations Reached" },
-  { number: "500+", label: "Members" },
-];
+import { supabase } from "../../lib/supabaseClient";
 
 export default function WelcomeStrip() {
-  // Fades/slides the section in once it scrolls into view, rather than on
-  // page load, since this section sits below the fold.
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [content, setContent] = useState({
+    welcome_heading: "You are welcome here",
+    welcome_text: "Salvation To All Nations is a family gathered from every background and nation, united in faith. Whether you're taking your first step toward God or you've walked with Him for years, there's a place for you at our table.",
+    stat_1_number: "12+",
+    stat_1_label: "Years Active",
+    stat_2_number: "30+",
+    stat_2_label: "Nations Reached",
+    stat_3_number: "500+",
+    stat_3_label: "Members"
+  });
+
+  useEffect(() => {
+    async function fetchWelcomeContent() {
+      const { data, error } = await supabase
+        .from('homepage_content')
+        .select('welcome_heading, welcome_text, stat_1_number, stat_1_label, stat_2_number, stat_2_label, stat_3_number, stat_3_label')
+        .limit(1)
+        .single();
+
+      if (!error && data) {
+        setContent(data);
+      }
+    }
+    fetchWelcomeContent();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect(); // only animate once
+          observer.disconnect();
         }
       },
       { threshold: 0.2 }
@@ -26,6 +44,12 @@ export default function WelcomeStrip() {
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
+
+  const stats = [
+    { number: content.stat_1_number, label: content.stat_1_label },
+    { number: content.stat_2_number, label: content.stat_2_label },
+    { number: content.stat_3_number, label: content.stat_3_label },
+  ];
 
   return (
     <section ref={sectionRef} className="bg-stone-50 py-24 md:py-32 px-6">
@@ -37,21 +61,17 @@ export default function WelcomeStrip() {
         <div className="w-12 h-[3px] bg-amber-500 mx-auto mb-8 rounded-full" />
 
         <h2 className="font-serif text-3xl md:text-[34px] text-green-950 mb-5">
-          You are welcome here
+          {content.welcome_heading}
         </h2>
 
         <p className="text-lg leading-relaxed text-stone-600">
-          Salvation To All Nations is a family gathered from every background
-          and nation, united in faith. Whether you're taking your first step
-          toward God or you've walked with Him for years, there's a place
-          for you at our table.
+          {content.welcome_text}
         </p>
 
-        {/* TODO: replace with real ministry figures before launch */}
         <div className="flex justify-center flex-wrap gap-x-16 gap-y-8 mt-16">
           {stats.map((stat, i) => (
             <div
-              key={stat.label}
+              key={i}
               className={`transition-all duration-700 ${
                 isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}

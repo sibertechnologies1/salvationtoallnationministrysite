@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useEvents } from "../../hooks/useEvents";
-import { EVENT_SHEETS } from "../../config/eventSheets";
 import eventsHeroImage from "../../assets/event_hero.jpg"; 
 
 const MONTHS = [
@@ -10,12 +9,17 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+function parseLocalDate(dateString) {
+  if (!dateString) return new Date();
+  const [year, month, day] = dateString.split("T")[0].split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export default function Events() {
-  const { events, isLoading, error } = useEvents(EVENT_SHEETS.general); // full list, no slicing
+  const { events, isLoading, error } = useEvents("general");
 
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Staggered entrance animation for the hero text — same pattern as Sermons page
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
     const timeout = setTimeout(() => setHasMounted(true), 100);
@@ -36,15 +40,12 @@ export default function Events() {
     <>
       <Navbar />
 
-      {/* Animated hero banner */}
       <section className="relative pt-32 pb-20 px-6 text-center overflow-hidden">
-        {/* Background photo with a slow Ken Burns zoom */}
         <div
           className="absolute inset-0 bg-cover scale-105 animate-[kenburns_18s_ease-in-out_infinite_alternate]"
           style={{ backgroundImage: `url(${eventsHeroImage})`, backgroundPosition: "center 30%" }}
         />
 
-        {/* Green-tinted overlay — keeps brand cohesion while still letting the warmth of the photo show */}
         <div
           className="absolute inset-0"
           style={{
@@ -77,7 +78,6 @@ export default function Events() {
             event is a chance to belong.
           </p>
 
-          {/* Animated scroll cue */}
           <div
             className={`mt-10 text-amber-500 text-xl animate-bounce transition-opacity duration-700 delay-500 ${
               hasMounted ? "opacity-100" : "opacity-0"
@@ -88,7 +88,6 @@ export default function Events() {
         </div>
       </section>
 
-      {/* Full event grid */}
       <section className="bg-white py-20 px-6">
         <div className="max-w-screen-xl mx-auto">
           {isLoading && (
@@ -123,14 +122,14 @@ export default function Events() {
           {!isLoading && !error && events.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {events.map((event, index) => {
-                const dateObj = new Date(event.date);
+                const dateObj = parseLocalDate(event.date);
                 const day = dateObj.getDate();
                 const month = MONTHS[dateObj.getMonth()];
                 const hasImage = Boolean(event.imageUrl);
 
                 return (
                   <button
-                    key={event.title + event.date}
+                    key={event.id || `${event.title}-${event.date}`}
                     type="button"
                     onClick={() => openEvent(event)}
                     style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
@@ -165,7 +164,7 @@ export default function Events() {
                         {event.title}
                       </h3>
                       <p className="text-sm text-stone-500 mt-2">
-                        {event.time} — {event.location}
+                        {event.time} {event.location ? `— ${event.location}` : ""}
                       </p>
                     </div>
                   </button>
@@ -178,7 +177,6 @@ export default function Events() {
 
       <Footer />
 
-      {/* Event Detail Modal */}
       {selectedEvent && (
         <div
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 md:p-8"
@@ -224,17 +222,25 @@ export default function Events() {
 
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-500 mb-4">
                   <span>
-                    {new Date(selectedEvent.date).toLocaleDateString(undefined, {
+                    {parseLocalDate(selectedEvent.date).toLocaleDateString(undefined, {
                       weekday: "long",
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                     })}
                   </span>
-                  <span className="text-amber-500">•</span>
-                  <span>{selectedEvent.time}</span>
-                  <span className="text-amber-500">•</span>
-                  <span>{selectedEvent.location}</span>
+                  {selectedEvent.time && (
+                    <>
+                      <span className="text-amber-500">•</span>
+                      <span>{selectedEvent.time}</span>
+                    </>
+                  )}
+                  {selectedEvent.location && (
+                    <>
+                      <span className="text-amber-500">•</span>
+                      <span>{selectedEvent.location}</span>
+                    </>
+                  )}
                 </div>
 
                 <p className="text-stone-600 leading-relaxed">
