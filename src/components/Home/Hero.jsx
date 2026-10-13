@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import home_hero from "../../assets/home_hero.jpg";
+import defaultHomeHero from "../../assets/home_hero.jpg";
 
 const welcomeWords = [
   "Welcome",
@@ -17,13 +17,14 @@ export default function Hero() {
     hero_eyebrow: 'SALVATION TO ALL NATIONS',
     hero_title: 'Light for every nation, hope for every heart.',
     hero_description: 'A community gathered from every tribe and tongue, walking together in faith, worship, and service to Christ.',
+    hero_bg_image_url: '',
   });
 
   useEffect(() => {
     async function fetchHeroContent() {
       const { data, error } = await supabase
         .from('homepage_content')
-        .select('hero_eyebrow, hero_title, hero_description')
+        .select('hero_eyebrow, hero_title, hero_description, hero_bg_image_url')
         .limit(1)
         .single();
 
@@ -33,6 +34,8 @@ export default function Hero() {
     }
     fetchHeroContent();
   }, []);
+
+  const bgImage = content.hero_bg_image_url || defaultHomeHero;
 
   return (
     <section className="relative min-h-[100svh] md:h-[85vh] md:min-h-[600px] w-full overflow-hidden flex flex-col justify-end">
@@ -47,7 +50,7 @@ export default function Hero() {
           sm:bg-center
         "
         style={{
-          backgroundImage: `url(${home_hero})`,
+          backgroundImage: `url(${bgImage})`,
         }}
       />
 

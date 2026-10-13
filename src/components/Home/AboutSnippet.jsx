@@ -1,25 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
-import aboutImage from "../../assets/about.jpg"; 
+import defaultAboutImage from "../../assets/about.jpg"; 
 
 export default function AboutSnippet() {
   const sectionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   const [content, setContent] = useState({
+    about_eyebrow: "WHO WE ARE",
     about_title: "A family bound by faith, not by borders.",
-    about_text: "Salvation To All Nations exists to bring the hope of Christ to every tribe, tongue, and nation. Since our founding, we've grown into a community rooted in worship, discipleship, and service, welcoming anyone who seeks a place to belong."
+    about_text: "Salvation To All Nations exists to bring the hope of Christ to every tribe, tongue, and nation. Since our founding, we've grown into a community rooted in worship, discipleship, and service, welcoming anyone who seeks a place to belong.",
+    about_image_url: "",
   });
 
   useEffect(() => {
     async function fetchAboutContent() {
       const { data, error } = await supabase
         .from('homepage_content')
-        .select('about_title, about_text')
+        .select('about_eyebrow, about_title, about_text, about_image_url')
         .limit(1)
         .single();
 
       if (!error && data) {
-        setContent(data);
+        setContent({
+          about_eyebrow: data.about_eyebrow || "WHO WE ARE",
+          about_title: data.about_title || "A family bound by faith, not by borders.",
+          about_text: data.about_text || "",
+          about_image_url: data.about_image_url || "",
+        });
       }
     }
     fetchAboutContent();
@@ -40,12 +47,14 @@ export default function AboutSnippet() {
     return () => observer.disconnect();
   }, []);
 
+  const sectionImg = content.about_image_url || defaultAboutImage;
+
   return (
     <section ref={sectionRef} className="flex flex-col md:flex-row min-h-[560px]">
       {/* Image side */}
       <div
         className="flex-1 min-h-[320px] md:min-h-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${aboutImage})`, backgroundPosition: "center 30%" }}
+        style={{ backgroundImage: `url(${sectionImg})`, backgroundPosition: "center 30%" }}
       />
 
       {/* Text side */}
@@ -56,7 +65,7 @@ export default function AboutSnippet() {
           }`}
         >
           <p className="text-sm tracking-[0.2em] uppercase text-amber-500 font-semibold mb-5">
-            Who We Are
+            {content.about_eyebrow}
           </p>
 
           <h2 className="font-serif text-3xl md:text-[38px] leading-tight text-stone-50 mb-6">

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import {supabase} from "../../lib/supabaseClient"
+import { supabase } from "../../lib/supabaseClient";
 import { 
   FiHome, 
   FiInfo, 
@@ -42,11 +42,11 @@ export default function AdminLayout() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — Fixed on all screens */}
       <aside
         className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-green-950 text-stone-50 flex flex-col justify-between transition-transform duration-300 transform ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0 lg:static lg:z-auto`}
+        } lg:translate-x-0`}
       >
         <div>
           {/* Header / Branding */}
@@ -102,10 +102,10 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main Content Container */}
-      <div className="flex-1 flex flex-col min-w-0">
+      {/* Main Content Container — Offset by sidebar width on large screens */}
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
         {/* Top Bar */}
-        <header className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between shadow-sm">
+        <header className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-30">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -129,7 +129,7 @@ export default function AdminLayout() {
         </header>
 
         {/* Page Content Rendered Here */}
-        <main className="flex-1 p-6 md:p-10 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-10">
           <Outlet />
         </main>
       </div>

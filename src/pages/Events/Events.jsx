@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import { useEvents } from "../../hooks/useEvents";
-import eventsHeroImage from "../../assets/event_hero.jpg"; 
+import { supabase } from "../../lib/supabaseClient";
+import defaultEventsHero from "../../assets/event_hero.jpg"; 
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -17,8 +18,35 @@ function parseLocalDate(dateString) {
 
 export default function Events() {
   const { events, isLoading, error } = useEvents("general");
-
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [heroContent, setHeroContent] = useState({
+    eyebrow: "Join Us",
+    title: "Upcoming Events",
+    description: "Gather with us for worship, fellowship, and community, every event is a chance to belong.",
+    bg_image_url: "",
+  });
+
+  useEffect(() => {
+    async function fetchHero() {
+      // Fetch hero settings directly from the events table
+      const { data } = await supabase
+        .from("events")
+        .select("hero_eyebrow, hero_title, hero_description, hero_bg_image_url")
+        .order("date", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (data) {
+        setHeroContent({
+          eyebrow: data.hero_eyebrow || "Join Us",
+          title: data.hero_title || "Upcoming Events",
+          description: data.hero_description || "Gather with us for worship, fellowship, and community, every event is a chance to belong.",
+          bg_image_url: data.hero_bg_image_url || "",
+        });
+      }
+    }
+    fetchHero();
+  }, []);
 
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
@@ -36,6 +64,8 @@ export default function Events() {
   const openEvent = (event) => setSelectedEvent(event);
   const closeEvent = () => setSelectedEvent(null);
 
+  const bgImage = heroContent.bg_image_url || defaultEventsHero;
+
   return (
     <>
       <Navbar />
@@ -43,7 +73,7 @@ export default function Events() {
       <section className="relative pt-32 pb-20 px-6 text-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover scale-105 animate-[kenburns_18s_ease-in-out_infinite_alternate]"
-          style={{ backgroundImage: `url(${eventsHeroImage})`, backgroundPosition: "center 30%" }}
+          style={{ backgroundImage: `url(${bgImage})`, backgroundPosition: "center 30%" }}
         />
 
         <div
@@ -60,22 +90,21 @@ export default function Events() {
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Join Us
+            {heroContent.eyebrow}
           </p>
           <h1
             className={`font-serif text-4xl md:text-5xl text-stone-50 transition-all duration-700 delay-150 ${
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Upcoming Events
+            {heroContent.title}
           </h1>
           <p
             className={`text-stone-300 mt-4 max-w-xl mx-auto transition-all duration-700 delay-300 ${
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Gather with us for worship, fellowship, and community, every
-            event is a chance to belong.
+            {heroContent.description}
           </p>
 
           <div
@@ -88,15 +117,13 @@ export default function Events() {
         </div>
       </section>
 
+      {/* Event Grid Section */}
       <section className="bg-white py-20 px-6">
         <div className="max-w-screen-xl mx-auto">
           {isLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div
-                  key={item}
-                  className="bg-stone-100 rounded-lg overflow-hidden animate-pulse"
-                >
+                <div key={item} className="bg-stone-100 rounded-lg overflow-hidden animate-pulse">
                   <div className="h-40 bg-stone-200" />
                   <div className="p-5">
                     <div className="h-4 bg-stone-200 rounded mb-3" />
@@ -176,81 +203,6 @@ export default function Events() {
       </section>
 
       <Footer />
-
-      {selectedEvent && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 md:p-8"
-          onClick={closeEvent}
-        >
-          <div
-            className="relative w-full max-w-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={closeEvent}
-              aria-label="Close event details"
-              className="absolute -top-12 right-0 md:-top-14 text-white hover:text-amber-500 transition-colors z-10"
-            >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <div className="bg-white rounded-lg overflow-hidden shadow-2xl">
-              {selectedEvent.imageUrl ? (
-                <img
-                  src={selectedEvent.imageUrl}
-                  alt={selectedEvent.title}
-                  className="w-full aspect-video object-cover"
-                />
-              ) : (
-                <div className="w-full aspect-[3/1] bg-green-950 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-amber-500 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-green-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 2v4M8 2v4M3 10h18" />
-                    </svg>
-                  </div>
-                </div>
-              )}
-
-              <div className="p-6">
-                <h3 className="font-serif text-2xl text-green-950 mb-3">
-                  {selectedEvent.title}
-                </h3>
-
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-500 mb-4">
-                  <span>
-                    {parseLocalDate(selectedEvent.date).toLocaleDateString(undefined, {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </span>
-                  {selectedEvent.time && (
-                    <>
-                      <span className="text-amber-500">•</span>
-                      <span>{selectedEvent.time}</span>
-                    </>
-                  )}
-                  {selectedEvent.location && (
-                    <>
-                      <span className="text-amber-500">•</span>
-                      <span>{selectedEvent.location}</span>
-                    </>
-                  )}
-                </div>
-
-                <p className="text-stone-600 leading-relaxed">
-                  {selectedEvent.description}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

@@ -5,6 +5,7 @@ const defaultHomeData = {
   hero_eyebrow: 'SALVATION TO ALL NATIONS',
   hero_title: 'Light for every nation, hope for every heart.',
   hero_description: 'A community gathered from every tribe and tongue, walking together in faith, worship, and service to Christ.',
+  hero_bg_image_url: '',
   welcome_heading: 'You are welcome here',
   welcome_text: "Salvation To All Nations is a family gathered from every background and nation, united in faith. Whether you're taking your first step toward God or you've walked with Him for years, there's a place for you at our table.",
   stat_1_number: '12+',
@@ -13,8 +14,10 @@ const defaultHomeData = {
   stat_2_label: 'NATIONS REACHED',
   stat_3_number: '500+',
   stat_3_label: 'MEMBERS',
+  about_eyebrow: 'WHO WE ARE',
   about_title: 'A family bound by faith, not by borders.',
   about_text: "Salvation To All Nations exists to bring the hope of Christ to every tribe, tongue, and nation. Since our founding, we've grown into a community rooted in worship, discipleship, and service, welcoming anyone who seeks a place to belong.",
+  about_image_url: '',
   giving_heading: 'Your generosity fuels the mission',
   giving_text: 'Every gift helps us reach more nations, disciple more believers, and serve our community with the love of Christ. Thank you for partnering with us, we really appreciate your support.',
 };
@@ -23,14 +26,21 @@ export default function ManageHome() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState(defaultHomeData);
+  const [heroImageFile, setHeroImageFile] = useState(null);
+  const [aboutImageFile, setAboutImageFile] = useState(null);
 
   useEffect(() => {
     async function loadContent() {
-      const { data, error } = await supabase.from('homepage_content').select('*').limit(1).single();
-      if (!error && data) {
-        setFormData(data);
+      try {
+        const { data, error } = await supabase.from('homepage_content').select('*').limit(1).single();
+        if (!error && data) {
+          setFormData({ ...defaultHomeData, ...data });
+        }
+      } catch (err) {
+        console.error("Error loading home content:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadContent();
   }, []);
@@ -39,18 +49,55 @@ export default function ManageHome() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const uploadFile = async (file, prefix) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${prefix}_${Date.now()}.${fileExt}`;
+
+    // Uploads file to 'sermons' bucket (ensure 'sermons' bucket exists and is public)
+    const { error: uploadError } = await supabase.storage
+      .from('sermons')
+      .upload(fileName, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from('sermons').getPublicUrl(fileName);
+    return data.publicUrl;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    
-    // Upsert creates the row if it doesn't exist yet, or updates if it does
-    const { error } = await supabase.from('homepage_content').upsert([formData]);
-    
-    setSaving(false);
-    if (error) {
-      alert(`Error saving: ${error.message}`);
-    } else {
+
+    try {
+      let finalHeroBg = formData.hero_bg_image_url;
+      let finalAboutImg = formData.about_image_url;
+
+      // Only attempt storage upload if a file was selected
+      if (heroImageFile) {
+        finalHeroBg = await uploadFile(heroImageFile, 'home_hero');
+      }
+
+      if (aboutImageFile) {
+        finalAboutImg = await uploadFile(aboutImageFile, 'home_about');
+      }
+
+      const payload = {
+        ...formData,
+        hero_bg_image_url: finalHeroBg || '',
+        about_image_url: finalAboutImg || '',
+      };
+
+      const { error } = await supabase.from('homepage_content').upsert([payload]);
+      if (error) throw error;
+
       alert('Home page content updated successfully!');
+      setHeroImageFile(null);
+      setAboutImageFile(null);
+    } catch (err) {
+      console.error(err);
+      alert(`Error saving: ${err.message || 'Network connection error or missing storage permissions.'}`);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -91,6 +138,22 @@ export default function ManageHome() {
             onChange={handleChange}
             className="w-full border border-stone-300 p-2.5 rounded focus:ring-2 focus:ring-amber-500 focus:outline-none"
             rows={3}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Hero Background Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setHeroImageFile(e.target.files[0])}
+            className="w-full border p-1 rounded text-sm mb-2"
+          />
+          <input
+            name="hero_bg_image_url"
+            placeholder="...or paste Background Image URL"
+            value={formData.hero_bg_image_url || ''}
+            onChange={handleChange}
+            className="w-full border border-stone-300 p-2.5 rounded focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm"
           />
         </div>
       </fieldset>
@@ -174,11 +237,20 @@ export default function ManageHome() {
         </div>
       </fieldset>
 
-      {/* About Teaser Section */}
+      {/* About Section Teaser */}
       <fieldset className="p-5 border border-stone-200 rounded-lg space-y-4">
         <legend className="font-semibold text-amber-600 px-2 text-sm uppercase tracking-wider">
           About Section Teaser
         </legend>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Eyebrow Text</label>
+          <input
+            name="about_eyebrow"
+            value={formData.about_eyebrow || ''}
+            onChange={handleChange}
+            className="w-full border border-stone-300 p-2.5 rounded focus:ring-2 focus:ring-amber-500 focus:outline-none"
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">About Title</label>
           <input
@@ -196,6 +268,22 @@ export default function ManageHome() {
             onChange={handleChange}
             className="w-full border border-stone-300 p-2.5 rounded focus:ring-2 focus:ring-amber-500 focus:outline-none"
             rows={3}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-stone-700 mb-1">Section Side Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setAboutImageFile(e.target.files[0])}
+            className="w-full border p-1 rounded text-sm mb-2"
+          />
+          <input
+            name="about_image_url"
+            placeholder="...or paste Image URL"
+            value={formData.about_image_url || ''}
+            onChange={handleChange}
+            className="w-full border border-stone-300 p-2.5 rounded focus:ring-2 focus:ring-amber-500 focus:outline-none text-sm"
           />
         </div>
       </fieldset>
