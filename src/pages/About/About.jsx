@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import { supabase } from "../../lib/supabaseClient";
 import aboutHeroImage from "../../assets/aboutus.jpg"; 
 import pastorPhoto from "../../assets/pastor.jpg"; 
 
@@ -25,13 +26,38 @@ const coreValues = [
 
 export default function About() {
   const [hasMounted, setHasMounted] = useState(false);
+  const [heroContent, setHeroContent] = useState({
+    eyebrow: "Who We Are",
+    title: "Our Story",
+    description: "Rooted in faith, growing in community, reaching every nation.",
+    bg_image_url: "",
+  });
+
   useEffect(() => {
     const timeout = setTimeout(() => setHasMounted(true), 100);
     return () => clearTimeout(timeout);
   }, []);
 
-  // Scroll-triggered fade-in for the Our Story section, same pattern as
-  // the Home page's Welcome strip and About snippet
+  useEffect(() => {
+    async function fetchHero() {
+      const { data } = await supabase
+        .from("about")
+        .select("hero_eyebrow, hero_title, hero_description, hero_bg_image_url")
+        .limit(1)
+        .maybeSingle();
+
+      if (data) {
+        setHeroContent({
+          eyebrow: data.hero_eyebrow || "Who We Are",
+          title: data.hero_title || "Our Story",
+          description: data.hero_description || "Rooted in faith, growing in community, reaching every nation.",
+          bg_image_url: data.hero_bg_image_url || "",
+        });
+      }
+    }
+    fetchHero();
+  }, []);
+
   const storyRef = useRef(null);
   const [storyVisible, setStoryVisible] = useState(false);
   useEffect(() => {
@@ -48,15 +74,17 @@ export default function About() {
     return () => observer.disconnect();
   }, []);
 
+  const bgImage = heroContent.bg_image_url || aboutHeroImage;
+
   return (
     <>
       <Navbar />
 
-      {/* Animated hero banner — consistent with Sermons and Events pages */}
+      {/* Animated hero banner */}
       <section className="relative pt-32 pb-20 px-6 text-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover scale-105 animate-[kenburns_18s_ease-in-out_infinite_alternate]"
-          style={{ backgroundImage: `url(${aboutHeroImage})`, backgroundPosition: "center 40%" }}
+          style={{ backgroundImage: `url(${bgImage})`, backgroundPosition: "center 40%" }}
         />
         <div
           className="absolute inset-0"
@@ -71,21 +99,21 @@ export default function About() {
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Who We Are
+            {heroContent.eyebrow}
           </p>
           <h1
             className={`font-serif text-4xl md:text-5xl text-stone-50 transition-all duration-700 delay-150 ${
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Our Story
+            {heroContent.title}
           </h1>
           <p
             className={`text-stone-300 mt-4 max-w-xl mx-auto transition-all duration-700 delay-300 ${
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Rooted in faith, growing in community, reaching every nation.
+            {heroContent.description}
           </p>
           <div
             className={`mt-10 text-amber-500 text-xl animate-bounce transition-opacity duration-700 delay-500 ${
@@ -105,7 +133,6 @@ export default function About() {
           }`}
         >
           <div className="w-12 h-[3px] bg-amber-500 mx-auto mb-8 rounded-full" />
-          {/* TODO: replace with the ministry's real founding story once provided */}
           <p className="text-lg leading-relaxed text-stone-600">
             Salvation To All Nations began as a small gathering of believers
             with one conviction: that the hope of Christ belongs to every
@@ -160,10 +187,9 @@ export default function About() {
 
           <img
             src={pastorPhoto}
-            alt="Lead Pastor" // TODO: replace with the real name once provided
+            alt="Lead Pastor"
             className="w-40 h-40 rounded-full object-cover mx-auto mb-6 shadow-lg"
           />
-          {/* TODO: replace name and bio with real details once provided */}
           <h3 className="font-serif text-2xl text-green-950 mb-3">
             Pastor Tiroug Boadzie Ebenezer
           </h3>
