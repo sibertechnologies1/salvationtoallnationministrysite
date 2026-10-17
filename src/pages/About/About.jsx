@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabaseClient";
 import aboutHeroImage from "../../assets/aboutus.jpg"; 
 import pastorPhoto from "../../assets/pastor.jpg"; 
 
-const coreValues = [
+const defaultCoreValues = [
   {
     title: "Worship",
     description: "We gather to honor God with all our heart, in spirit and in truth.",
@@ -26,11 +26,18 @@ const coreValues = [
 
 export default function About() {
   const [hasMounted, setHasMounted] = useState(false);
-  const [heroContent, setHeroContent] = useState({
-    eyebrow: "Who We Are",
-    title: "Our Story",
-    description: "Rooted in faith, growing in community, reaching every nation.",
-    bg_image_url: "",
+  const [pageData, setPageData] = useState({
+    hero_eyebrow: "Who We Are",
+    hero_title: "Our Story",
+    hero_description: "Rooted in faith, growing in community, reaching every nation.",
+    hero_bg_image_url: "",
+    story_content: "Salvation To All Nations began as a small gathering of believers with one conviction: that the hope of Christ belongs to every tribe, tongue, and nation. What started as a handful of people praying together has grown into a community rooted in worship, discipleship, and service, welcoming anyone who seeks a place to belong. We remain committed to the same mission we started with, reaching our city and the nations with the love of God.",
+    core_values: defaultCoreValues,
+    pastor_name: "Pastor Tiroug Boadzie Ebenezer",
+    pastor_bio: "Pastor Tiroug Boadzie Ebenezer has led Salvation To All Nations with a heart for discipleship and community, believing that every person deserves a place to belong and grow in faith.",
+    pastor_image_url: "",
+    cta_title: "We'd love to have you join us",
+    cta_button_text: "Plan your visit",
   });
 
   useEffect(() => {
@@ -39,23 +46,30 @@ export default function About() {
   }, []);
 
   useEffect(() => {
-    async function fetchHero() {
-      const { data } = await supabase
+    async function fetchAllAboutData() {
+      const { data, error } = await supabase
         .from("about")
-        .select("hero_eyebrow, hero_title, hero_description, hero_bg_image_url")
+        .select("*")
         .limit(1)
         .maybeSingle();
 
-      if (data) {
-        setHeroContent({
-          eyebrow: data.hero_eyebrow || "Who We Are",
-          title: data.hero_title || "Our Story",
-          description: data.hero_description || "Rooted in faith, growing in community, reaching every nation.",
-          bg_image_url: data.hero_bg_image_url || "",
+      if (data && !error) {
+        setPageData({
+          hero_eyebrow: data.hero_eyebrow || "Who We Are",
+          hero_title: data.hero_title || "Our Story",
+          hero_description: data.hero_description || "Rooted in faith, growing in community, reaching every nation.",
+          hero_bg_image_url: data.hero_bg_image_url || "",
+          story_content: data.story_content || pageData.story_content,
+          core_values: data.core_values && data.core_values.length > 0 ? data.core_values : defaultCoreValues,
+          pastor_name: data.pastor_name || "Pastor Tiroug Boadzie Ebenezer",
+          pastor_bio: data.pastor_bio || pageData.pastor_bio,
+          pastor_image_url: data.pastor_image_url || "",
+          cta_title: data.cta_title || "We'd love to have you join us",
+          cta_button_text: data.cta_button_text || "Plan your visit",
         });
       }
     }
-    fetchHero();
+    fetchAllAboutData();
   }, []);
 
   const storyRef = useRef(null);
@@ -74,7 +88,8 @@ export default function About() {
     return () => observer.disconnect();
   }, []);
 
-  const bgImage = heroContent.bg_image_url || aboutHeroImage;
+  const bgImage = pageData.hero_bg_image_url || aboutHeroImage;
+  const pastorImg = pageData.pastor_image_url || pastorPhoto;
 
   return (
     <>
@@ -99,21 +114,21 @@ export default function About() {
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            {heroContent.eyebrow}
+            {pageData.hero_eyebrow}
           </p>
           <h1
             className={`font-serif text-4xl md:text-5xl text-stone-50 transition-all duration-700 delay-150 ${
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {heroContent.title}
+            {pageData.hero_title}
           </h1>
           <p
             className={`text-stone-300 mt-4 max-w-xl mx-auto transition-all duration-700 delay-300 ${
               hasMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            {heroContent.description}
+            {pageData.hero_description}
           </p>
           <div
             className={`mt-10 text-amber-500 text-xl animate-bounce transition-opacity duration-700 delay-500 ${
@@ -133,14 +148,8 @@ export default function About() {
           }`}
         >
           <div className="w-12 h-[3px] bg-amber-500 mx-auto mb-8 rounded-full" />
-          <p className="text-lg leading-relaxed text-stone-600">
-            Salvation To All Nations began as a small gathering of believers
-            with one conviction: that the hope of Christ belongs to every
-            tribe, tongue, and nation. What started as a handful of people
-            praying together has grown into a community rooted in worship,
-            discipleship, and service, welcoming anyone who seeks a place to
-            belong. We remain committed to the same mission we started
-            with, reaching our city and the nations with the love of God.
+          <p className="text-lg leading-relaxed text-stone-600 whitespace-pre-line">
+            {pageData.story_content}
           </p>
         </div>
       </section>
@@ -158,9 +167,9 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {coreValues.map((value) => (
+            {pageData.core_values.map((value, idx) => (
               <div
-                key={value.title}
+                key={value.title || idx}
                 className="bg-green-900 rounded-lg p-7 transition-all duration-300 hover:-translate-y-1 hover:bg-green-800"
               >
                 <h3 className="font-serif text-xl text-amber-500 mb-3">
@@ -186,17 +195,15 @@ export default function About() {
           </h2>
 
           <img
-            src={pastorPhoto}
-            alt="Lead Pastor"
+            src={pastorImg}
+            alt={pageData.pastor_name}
             className="w-40 h-40 rounded-full object-cover mx-auto mb-6 shadow-lg"
           />
           <h3 className="font-serif text-2xl text-green-950 mb-3">
-            Pastor Tiroug Boadzie Ebenezer
+            {pageData.pastor_name}
           </h3>
-          <p className="text-stone-600 leading-relaxed max-w-xl mx-auto">
-            Pastor Tiroug Boadzie Ebenezer has led Salvation To All Nations with a heart
-            for discipleship and community, believing that every person
-            deserves a place to belong and grow in faith.
+          <p className="text-stone-600 leading-relaxed max-w-xl mx-auto whitespace-pre-line">
+            {pageData.pastor_bio}
           </p>
         </div>
       </section>
@@ -204,13 +211,13 @@ export default function About() {
       {/* Closing CTA */}
       <section className="bg-amber-500 py-20 px-6 text-center">
         <h2 className="font-serif text-2xl md:text-3xl text-green-950 mb-6">
-          We'd love to have you join us
+          {pageData.cta_title}
         </h2>
         <a
           href="/contact"
           className="group inline-flex items-center gap-2 bg-green-950 text-stone-50 font-semibold text-sm px-9 py-4 rounded transition-transform duration-200 hover:scale-105 active:scale-95"
         >
-          Plan your visit
+          {pageData.cta_button_text}
           <span className="transition-transform duration-200 group-hover:translate-x-1">
             →
           </span>
