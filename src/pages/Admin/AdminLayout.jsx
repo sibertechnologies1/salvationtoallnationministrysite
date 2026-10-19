@@ -17,10 +17,10 @@ import {
 const navItems = [
   { name: 'Home Page', path: '/admin/home', icon: FiHome },
   { name: 'About Page', path: '/admin/about', icon: FiInfo },
-  { name: 'Sermons', path: '/admin/sermons', icon: FiBookOpen },
-  { name: 'Events', path: '/admin/events', icon: FiCalendar },
-  { name: 'Giving', path: '/admin/giving', icon: FiCreditCard },
-  { name: 'Contact Submissions', path: '/admin/contact', icon: FiMail },
+  { name: 'Sermons Page', path: '/admin/sermons', icon: FiBookOpen },
+  { name: 'Events Page', path: '/admin/events', icon: FiCalendar },
+  { name: 'Giving Page', path: '/admin/giving', icon: FiCreditCard },
+  { name: 'Contact Page', path: '/admin/contact', icon: FiMail },
 ];
 
 export default function AdminLayout() {
