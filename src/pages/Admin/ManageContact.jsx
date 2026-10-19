@@ -1,5 +1,16 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix default Leaflet marker icon paths in React
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
 const AVAILABLE_ICONS = [
   'FaMapMarkerAlt', 'FaPhoneAlt', 'FaEnvelope', 'FaClock', 'FaCheck', 'FaPlus',
@@ -7,11 +18,25 @@ const AVAILABLE_ICONS = [
   'FaCalendarAlt', 'FaUsers', 'FaGlobe', 'FaPray', 'FaHandHoldingHeart'
 ];
 
+function ChangeMapCenter({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 15);
+  }, [center, map]);
+  return null;
+}
+
 export default function ManageContact() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [targetId, setTargetId] = useState(null);
   const [heroImageFile, setHeroImageFile] = useState(null);
+
+  // Map state
+  const [mapCenter, setMapCenter] = useState([6.8527612, -1.713953]); // Default Barekese, Ghana
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
 
   const defaultValues = {
     hero_eyebrow: 'Get In Touch',
@@ -72,6 +97,9 @@ export default function ManageContact() {
         ...defaultValues,
         ...data,
       });
+      if (data.location_address) {
+        setSearchQuery(data.location_address);
+      }
     }
     setLoading(false);
   };
@@ -79,6 +107,64 @@ export default function ManageContact() {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Search Location via Nominatim API
+  const handleSearchLocation = async (query) => {
+    setSearchQuery(query);
+    if (!query || query.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+      );
+      const results = await response.json();
+      setSearchResults(results);
+    } catch (err) {
+      console.error('Location search failed:', err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSelectResult = (result) => {
+    const lat = parseFloat(result.lat);
+    const lon = parseFloat(result.lon);
+    
+    setMapCenter([lat, lon]);
+    updateEmbedAndAddress(lat, lon, result.display_name);
+    setSearchResults([]);
+    setSearchQuery(result.display_name);
+  };
+
+  const handleMarkerDragEnd = async (e) => {
+    const { lat, lng } = e.target.getLatLng();
+    setMapCenter([lat, lng]);
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+      );
+      const data = await res.json();
+      const placeName = data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      updateEmbedAndAddress(lat, lng, placeName);
+      setSearchQuery(placeName);
+    } catch {
+      updateEmbedAndAddress(lat, lng, `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+    }
+  };
+
+  const updateEmbedAndAddress = (lat, lng, addressName) => {
+    const generatedEmbedUrl = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+    setFormData((prev) => ({
+      ...prev,
+      google_maps_url: generatedEmbedUrl,
+      location_address: addressName,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -146,6 +232,85 @@ export default function ManageContact() {
       <h1 className="text-2xl font-bold font-serif text-green-950">Manage Contact Page</h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Interactive Map & Location Search Section */}
+        <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
+          <h2 className="text-lg font-semibold text-amber-600">Interactive Map Location Picker</h2>
+          
+          <div className="relative">
+            <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">
+              Search Location
+            </label>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearchLocation(e.target.value)}
+              placeholder="Search city, street, or venue..."
+              className="w-full border p-2.5 rounded text-sm outline-none focus:ring-2 focus:ring-amber-500"
+            />
+            
+            {searchResults.length > 0 && (
+              <ul className="absolute z-50 w-full bg-white border rounded-b shadow-lg max-h-60 overflow-y-auto mt-1">
+                {searchResults.map((result, idx) => (
+                  <li
+                    key={idx}
+                    onClick={() => handleSelectResult(result)}
+                    className="p-3 text-sm hover:bg-stone-100 cursor-pointer border-b last:border-b-0 text-stone-700"
+                  >
+                    {result.display_name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {searching && (
+              <div className="text-xs text-stone-400 mt-1">Searching location...</div>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-stone-600 uppercase mb-2">
+              Adjust Marker Position on Map (Drag to fine-tune exact location)
+            </label>
+            <div className="w-full h-[360px] border rounded-xl overflow-hidden shadow-inner relative z-10">
+              <MapContainer
+                center={mapCenter}
+                zoom={15}
+                scrollWheelZoom={true}
+                className="w-full h-full"
+              >
+                <ChangeMapCenter center={mapCenter} />
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker
+                  position={mapCenter}
+                  draggable={true}
+                  eventHandlers={{ dragend: handleMarkerDragEnd }}
+                />
+              </MapContainer>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Generated Embed URL</label>
+              <input
+                readOnly
+                value={formData.google_maps_url}
+                className="w-full border p-2.5 rounded text-xs font-mono bg-stone-50 text-stone-600"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Location Address</label>
+              <input
+                value={formData.location_address}
+                onChange={(e) => setFormData({ ...formData, location_address: e.target.value })}
+                className="w-full border p-2.5 rounded text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
           <h2 className="text-lg font-semibold text-amber-600">Contact Hero Section</h2>
@@ -198,31 +363,6 @@ export default function ManageContact() {
           <h2 className="text-lg font-semibold text-amber-600">Contact Info & Service Times</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Section Eyebrow</label>
-              <input
-                value={formData.info_eyebrow}
-                onChange={(e) => setFormData({ ...formData, info_eyebrow: e.target.value })}
-                className="w-full border p-2.5 rounded text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Section Title</label>
-              <input
-                value={formData.info_title}
-                onChange={(e) => setFormData({ ...formData, info_title: e.target.value })}
-                className="w-full border p-2.5 rounded text-sm"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Section Description</label>
-              <textarea
-                rows={2}
-                value={formData.info_description}
-                onChange={(e) => setFormData({ ...formData, info_description: e.target.value })}
-                className="w-full border p-2.5 rounded text-sm"
-              />
-            </div>
-            <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Phone Number</label>
               <input
                 value={formData.phone_number}
@@ -235,14 +375,6 @@ export default function ManageContact() {
               <input
                 value={formData.email_address}
                 onChange={(e) => setFormData({ ...formData, email_address: e.target.value })}
-                className="w-full border p-2.5 rounded text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Location Address</label>
-              <input
-                value={formData.location_address}
-                onChange={(e) => setFormData({ ...formData, location_address: e.target.value })}
                 className="w-full border p-2.5 rounded text-sm"
               />
             </div>
@@ -268,6 +400,14 @@ export default function ManageContact() {
                 value={formData.friday_time}
                 onChange={(e) => setFormData({ ...formData, friday_time: e.target.value })}
                 className="w-full border p-2.5 rounded text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Web3Forms Access Key</label>
+              <input
+                value={formData.web3forms_access_key}
+                onChange={(e) => setFormData({ ...formData, web3forms_access_key: e.target.value })}
+                className="w-full border p-2.5 rounded text-sm font-mono text-xs"
               />
             </div>
           </div>
@@ -355,31 +495,6 @@ export default function ManageContact() {
                   <option key={icon} value={icon}>{icon}</option>
                 ))}
               </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Location & Google Maps Section */}
-        <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Map & Location Settings</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Google Maps Embed URL</label>
-              <input
-                value={formData.google_maps_url}
-                onChange={(e) => setFormData({ ...formData, google_maps_url: e.target.value })}
-                placeholder="https://www.google.com/maps/embed?pb=..."
-                className="w-full border p-2.5 rounded text-sm font-mono text-xs"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Web3Forms Access Key</label>
-              <input
-                value={formData.web3forms_access_key}
-                onChange={(e) => setFormData({ ...formData, web3forms_access_key: e.target.value })}
-                placeholder="Access Key for contact form submissions"
-                className="w-full border p-2.5 rounded text-sm font-mono text-xs"
-              />
             </div>
           </div>
         </div>
@@ -540,13 +655,15 @@ export default function ManageContact() {
           </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-amber-500 text-green-950 font-semibold px-8 py-3 rounded hover:bg-amber-400 disabled:opacity-50 text-sm shadow"
-        >
-          {saving ? 'Saving Changes...' : 'Save All Contact Changes'}
-        </button>
+        <div>
+          <button
+            type="submit"
+            disabled={saving}
+            className="bg-amber-500 text-green-950 font-semibold px-8 py-3 rounded hover:bg-amber-400 disabled:opacity-50 text-sm shadow"
+          >
+            {saving ? 'Saving Changes...' : 'Save All Contact Changes'}
+          </button>
+        </div>
       </form>
     </div>
   );

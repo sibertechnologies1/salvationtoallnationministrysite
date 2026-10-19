@@ -36,7 +36,6 @@ export default function ManageSermons() {
     
     if (sermonsData && sermonsData.length > 0) {
       setSermons(sermonsData);
-      // Use the first sermon row to hold the page hero settings
       const firstSermon = sermonsData[0];
       setTargetSermonId(firstSermon.id);
       setHeroData({
@@ -54,7 +53,7 @@ export default function ManageSermons() {
     loadData();
   }, []);
 
-const handleHeroSubmit = async (e) => {
+  const handleHeroSubmit = async (e) => {
     e.preventDefault();
     if (!targetSermonId) {
       alert('Please create at least one real sermon record first to hold the page hero settings.');
@@ -82,7 +81,6 @@ const handleHeroSubmit = async (e) => {
         finalHeroBg = data.publicUrl;
       }
 
-      // Update hero columns directly on the existing target sermon record
       const { error } = await supabase
         .from('sermons')
         .update({
@@ -368,7 +366,7 @@ const handleHeroSubmit = async (e) => {
           </label>
         </div>
 
-        <div className="flex gap-3">
+        <div>
           <button
             type="submit"
             disabled={saving}
@@ -376,15 +374,6 @@ const handleHeroSubmit = async (e) => {
           >
             {saving ? 'Saving...' : editingId ? 'Update Sermon' : 'Add Sermon'}
           </button>
-          {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="bg-stone-200 text-stone-800 font-semibold px-6 py-2.5 rounded hover:bg-stone-300"
-            >
-              Cancel
-            </button>
-          )}
         </div>
       </form>
 
