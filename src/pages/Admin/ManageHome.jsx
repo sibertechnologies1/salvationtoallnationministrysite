@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient.js';
+import { useTheme } from './AdminLayout';
 
 const defaultHomeData = {
   hero_eyebrow: 'SALVATION TO ALL NATIONS',
@@ -23,6 +24,7 @@ const defaultHomeData = {
 };
 
 export default function ManageHome() {
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState(defaultHomeData);
@@ -53,7 +55,6 @@ export default function ManageHome() {
     const fileExt = file.name.split('.').pop();
     const fileName = `${prefix}_${Date.now()}.${fileExt}`;
 
-    // Uploads file to 'sermons' bucket (ensure 'sermons' bucket exists and is public)
     const { error: uploadError } = await supabase.storage
       .from('sermons')
       .upload(fileName, file, { upsert: true });
@@ -72,7 +73,6 @@ export default function ManageHome() {
       let finalHeroBg = formData.hero_bg_image_url;
       let finalAboutImg = formData.about_image_url;
 
-      // Only attempt storage upload if a file was selected
       if (heroImageFile) {
         finalHeroBg = await uploadFile(heroImageFile, 'home_hero');
       }
@@ -105,11 +105,13 @@ export default function ManageHome() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl p-8 space-y-8 bg-white rounded-lg shadow-sm border border-stone-200">
-      <h1 className="text-2xl font-bold font-serif text-green-950">Manage Home Page</h1>
+      <h1 className={`text-2xl font-bold font-serif transition-colors ${theme?.heading_text || 'text-green-950'}`}>
+        Manage Home Page
+      </h1>
 
       {/* Hero Section */}
       <fieldset className="p-5 border border-stone-200 rounded-lg space-y-4">
-        <legend className="font-semibold text-amber-600 px-2 text-sm uppercase tracking-wider">
+        <legend className={`font-semibold px-2 text-sm uppercase tracking-wider transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
           Hero Section
         </legend>
         <div>
@@ -160,7 +162,7 @@ export default function ManageHome() {
 
       {/* Welcome Section & Stats */}
       <fieldset className="p-5 border border-stone-200 rounded-lg space-y-4">
-        <legend className="font-semibold text-amber-600 px-2 text-sm uppercase tracking-wider">
+        <legend className={`font-semibold px-2 text-sm uppercase tracking-wider transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
           Welcome Section & Stats
         </legend>
         <div>
@@ -239,7 +241,7 @@ export default function ManageHome() {
 
       {/* About Section Teaser */}
       <fieldset className="p-5 border border-stone-200 rounded-lg space-y-4">
-        <legend className="font-semibold text-amber-600 px-2 text-sm uppercase tracking-wider">
+        <legend className={`font-semibold px-2 text-sm uppercase tracking-wider transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
           About Section Teaser
         </legend>
         <div>
@@ -290,7 +292,7 @@ export default function ManageHome() {
 
       {/* Giving Section */}
       <fieldset className="p-5 border border-stone-200 rounded-lg space-y-4">
-        <legend className="font-semibold text-amber-600 px-2 text-sm uppercase tracking-wider">
+        <legend className={`font-semibold px-2 text-sm uppercase tracking-wider transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
           Giving Banner Section
         </legend>
         <div>

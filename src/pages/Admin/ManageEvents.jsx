@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { useTheme } from './AdminLayout';
 
 export default function ManageEvents() {
+  const theme = useTheme();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,7 +36,6 @@ export default function ManageEvents() {
     
     if (eventsData && eventsData.length > 0) {
       setEvents(eventsData);
-      // Use the first event row to hold the page hero settings
       const firstEvent = eventsData[0];
       setTargetEventId(firstEvent.id);
       setHeroData({
@@ -52,7 +53,7 @@ export default function ManageEvents() {
     loadData();
   }, []);
 
-const handleHeroSubmit = async (e) => {
+  const handleHeroSubmit = async (e) => {
     e.preventDefault();
     setSavingHero(true);
 
@@ -78,7 +79,6 @@ const handleHeroSubmit = async (e) => {
 
       let activeId = targetEventId;
 
-      // Find an existing row or auto-create one
       if (!activeId) {
         const { data: existingEvents } = await supabase.from('events').select('id').limit(1);
         if (existingEvents && existingEvents.length > 0) {
@@ -87,7 +87,6 @@ const handleHeroSubmit = async (e) => {
       }
 
       if (!activeId) {
-        // Insert initial row to store page hero metadata if table is empty
         const { data: newRow, error: insertError } = await supabase
           .from('events')
           .insert([{
@@ -214,11 +213,13 @@ const handleHeroSubmit = async (e) => {
 
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-8">
-      <h1 className="text-2xl font-bold font-serif text-green-950">Manage Events Page</h1>
+      <h1 className={`text-2xl font-bold font-serif transition-colors ${theme?.heading_text || 'text-green-950'}`}>
+        Manage Events Page
+      </h1>
 
       {/* Hero Section Form */}
       <form onSubmit={handleHeroSubmit} className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-        <h2 className="text-lg font-semibold text-amber-600">Events Hero Section</h2>
+        <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Events Hero Section</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -278,7 +279,7 @@ const handleHeroSubmit = async (e) => {
       {/* Event Item Form */}
       <form onSubmit={handleSubmit} className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-amber-600">
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
             {editingId ? 'Edit Event' : 'Add New Event'}
           </h2>
           {editingId && (

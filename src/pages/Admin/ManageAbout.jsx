@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { useTheme } from './AdminLayout';
 
 const defaultValues = [
   { title: "Worship", description: "We gather to honor God with all our heart, in spirit and in truth." },
@@ -9,6 +10,7 @@ const defaultValues = [
 ];
 
 export default function ManageAbout() {
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [targetId, setTargetId] = useState(null);
@@ -120,12 +122,14 @@ export default function ManageAbout() {
 
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-8">
-      <h1 className="text-2xl font-bold font-serif text-green-950">Manage About Page</h1>
+      <h1 className={`text-2xl font-bold font-serif transition-colors ${theme?.heading_text || 'text-green-950'}`}>
+        Manage About Page
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Hero Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Hero Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Hero Section</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Eyebrow Text</label>
@@ -172,7 +176,7 @@ export default function ManageAbout() {
 
         {/* Our Story Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Our Story Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Our Story Section</h2>
           <div>
             <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Story Content</label>
             <textarea
@@ -186,7 +190,7 @@ export default function ManageAbout() {
 
         {/* Core Values Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Core Values</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Core Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {formData.core_values.map((val, index) => (
               <div key={index} className="p-4 border rounded bg-stone-50 space-y-3">
@@ -214,7 +218,7 @@ export default function ManageAbout() {
 
         {/* Leadership Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Leadership (Meet Our Pastor)</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Leadership (Meet Our Pastor)</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Pastor's Name</label>
@@ -253,7 +257,7 @@ export default function ManageAbout() {
 
         {/* Closing CTA Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Closing Call To Action</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Closing Call To Action</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">CTA Heading</label>

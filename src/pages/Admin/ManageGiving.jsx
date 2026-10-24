@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { useTheme } from './AdminLayout';
 
 export default function ManageGiving() {
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [targetId, setTargetId] = useState(null);
@@ -123,12 +125,14 @@ export default function ManageGiving() {
 
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-8">
-      <h1 className="text-2xl font-bold font-serif text-green-950">Manage Giving Page</h1>
+      <h1 className={`text-2xl font-bold font-serif transition-colors ${theme?.heading_text || 'text-green-950'}`}>
+        Manage Giving Page
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Hero Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Giving Hero Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Giving Hero Section</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Eyebrow Text</label>
@@ -175,7 +179,7 @@ export default function ManageGiving() {
 
         {/* Intro Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Introduction Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Introduction Section</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Intro Eyebrow</label>
@@ -207,7 +211,7 @@ export default function ManageGiving() {
 
         {/* Mobile Money Accounts */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Mobile Money Details</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Mobile Money Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 border rounded bg-stone-50 space-y-2">
               <p className="font-semibold text-sm text-stone-700">MTN MoMo</p>
@@ -261,7 +265,7 @@ export default function ManageGiving() {
 
         {/* Bank Transfer Information */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Bank Transfer Details</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Bank Transfer Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Bank Name</label>
@@ -300,7 +304,7 @@ export default function ManageGiving() {
 
         {/* Closing Scripture Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Closing Scripture Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Closing Scripture Section</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Scripture Quote</label>

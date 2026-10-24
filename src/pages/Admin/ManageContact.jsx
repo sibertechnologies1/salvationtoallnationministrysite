@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTheme } from './AdminLayout';
 
 // Fix default Leaflet marker icon paths in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -27,6 +28,7 @@ function ChangeMapCenter({ center }) {
 }
 
 export default function ManageContact() {
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [targetId, setTargetId] = useState(null);
@@ -229,12 +231,16 @@ export default function ManageContact() {
 
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-8">
-      <h1 className="text-2xl font-bold font-serif text-green-950">Manage Contact Page</h1>
+      <h1 className={`text-2xl font-bold font-serif transition-colors ${theme?.heading_text || 'text-green-950'}`}>
+        Manage Contact Page
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Interactive Map & Location Search Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Interactive Map Location Picker</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Interactive Map Location Picker
+          </h2>
           
           <div className="relative">
             <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">
@@ -313,7 +319,9 @@ export default function ManageContact() {
 
         {/* Hero Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Contact Hero Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Contact Hero Section
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Eyebrow Text</label>
@@ -360,7 +368,9 @@ export default function ManageContact() {
 
         {/* Contact Info & Service Times Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Contact Info & Service Times</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Contact Info & Service Times
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Phone Number</label>
@@ -415,7 +425,9 @@ export default function ManageContact() {
 
         {/* Contact Information Cards Icons Customization */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Contact Information Card Icons</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Contact Information Card Icons
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Location Icon</label>
@@ -470,7 +482,9 @@ export default function ManageContact() {
 
         {/* Contact Form Side Icons */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Contact Form Side Icons</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Contact Form Side Icons
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">'We Listen' Feature Icon</label>
@@ -501,7 +515,9 @@ export default function ManageContact() {
 
         {/* Prayer Banner Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Prayer Banner Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Prayer Banner Section
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Prayer Eyebrow</label>
@@ -533,7 +549,9 @@ export default function ManageContact() {
 
         {/* Social Media Links Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Social Media Links & Icons</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Social Media Links & Icons
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Social Eyebrow</label>
@@ -625,7 +643,9 @@ export default function ManageContact() {
 
         {/* Closing Scripture Section */}
         <div className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-          <h2 className="text-lg font-semibold text-amber-600">Closing Scripture Section</h2>
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
+            Closing Scripture Section
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-stone-600 uppercase mb-1">Scripture Quote</label>

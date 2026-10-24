@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
+import { useTheme } from './AdminLayout';
 
 export default function ManageSermons() {
+  const theme = useTheme();
   const [sermons, setSermons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -204,11 +206,13 @@ export default function ManageSermons() {
 
   return (
     <div className="max-w-5xl mx-auto p-8 space-y-8">
-      <h1 className="text-2xl font-bold font-serif text-green-950">Manage Sermons Page</h1>
+      <h1 className={`text-2xl font-bold font-serif transition-colors ${theme?.heading_text || 'text-green-950'}`}>
+        Manage Sermons Page
+      </h1>
 
       {/* Hero Section Form */}
       <form onSubmit={handleHeroSubmit} className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
-        <h2 className="text-lg font-semibold text-amber-600">Sermons Hero Section</h2>
+        <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>Sermons Hero Section</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -268,7 +272,7 @@ export default function ManageSermons() {
       {/* Sermon Form */}
       <form onSubmit={handleSubmit} className="p-6 bg-white rounded-lg border border-stone-200 space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-amber-600">
+          <h2 className={`text-lg font-semibold transition-colors ${theme?.section_title_text || 'text-amber-600'}`}>
             {editingId ? 'Edit Sermon' : 'Add New Sermon'}
           </h2>
           {editingId && (
