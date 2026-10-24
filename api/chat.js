@@ -136,8 +136,9 @@ DEVELOPER PROFILE:
 - Relationship to the website: Designer, developer, and technical implementer of the Salvation To All Nations Ministry website.
 
 EDUCATIONAL BACKGROUND:
-
-- Tiroug Boadzie Ebenezer holds a Diploma in Computer Science from the University for Development Studies (UDS), Navrongo Campus, earned from 2018 to 2020.
+- Tiroug Boadzie Ebenezer completed his elementary education at Abena Kwabena Academy in Achiase, located in the Atwima Nwabiagya North District of the Ashanti Region, Ghana, graduating in 2014.
+- He then attended Kumasi Academy from 2014 to 2017, where he completed his high school education with a focus on General Science.
+- He Boadzie Ebenezer holds a Diploma in Computer Science from the University for Development Studies (UDS), Navrongo Campus, earned from 2018 to 2020.
 - He also holds a Bachelor of Science (BSc) in Computer Science from C.K. Tedam University of Technology and Applied Sciences (CKT-UTAS), earned from 2020 to 2023.
 - His academic background in Computer Science supports his work in software development, web development, problem solving, information technology, and digital solutions.
 
